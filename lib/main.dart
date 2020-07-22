@@ -1,0 +1,225 @@
+import 'dart:async';
+
+import 'package:audio_service/audio_service.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:podcast_player/screens/load_podcast_overview_screen.dart';
+import 'package:podcast_player/screens/main_screen.dart';
+import 'package:podcast_player/screens/library_screen.dart';
+import 'package:podcast_player/utils.dart';
+import 'package:podcast_player/widgets/add_feed_widget.dart';
+import 'package:podcast_player/widgets/navigator_page_widget.dart';
+
+import 'package:podcast_player/widgets/navigator_widget.dart';
+import 'package:podcast_player/widgets/player.dart';
+
+import 'analyzer.dart';
+
+Map<String, Podcast> podcasts = Map();
+Map<String, Episode> episodes = Map();
+
+Map<String, ValueNotifier<int>> episodeStates = Map();
+Map<String, DownloadTask> episodeDownloadInfo = Map();
+Map<String, int> episodeDownloadStates = Map();
+
+StreamController<String> updateStream = StreamController<String>.broadcast();
+
+//Stream<Podcast> updateStream;
+bool firstEpisodeLoadedFromSP = false;
+//TODO: bool + use currentEpisode
+ValueNotifier<Episode> openDescription = ValueNotifier(null);
+
+final List<GlobalKey<NavigatorState>> _navigatorKeys = [
+  GlobalKey(),
+  GlobalKey()
+];
+
+//const int imageSize = 200;
+
+void main() {
+  //updateStream = loadPodcasts().asBroadcastStream();
+
+  runApp(MyApp());
+
+  WidgetsFlutterBinding.ensureInitialized();
+
+  loadPodcasts();
+  loadDownloadedFiles();
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Podcast',
+      theme: ThemeData(
+        primaryColor: Colors.white,
+        accentColor: Colors.white,
+        // textTheme: TextTheme(body1: TextStyle(fontSize: 15)),
+        visualDensity: VisualDensity.adaptivePlatformDensity,
+      ),
+      home: App(),
+      /*builder: (context, widget) {
+        return Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            widget,
+            AudioServiceWidget(
+              child: AudioControllerWidget(),
+            ),
+            ValueListenableBuilder(
+              builder: (BuildContext context, Episode value, Widget child) {
+                if (value != null)
+                  return ProvisorischeDescription(episode: value);
+                else
+                  return Container(
+                    height: 0,
+                  );
+              },
+              valueListenable: openDescription,
+            ),
+          ],
+        );
+      },*/
+    );
+  }
+}
+
+class App extends StatefulWidget {
+  App({Key key}) : super(key: key);
+
+  @override
+  _AppState createState() => _AppState();
+}
+
+List<Widget> pageList = <Widget>[
+  MainScreen(),
+  SecondScreen(),
+];
+
+class _AppState extends State<App> {
+  int _selectedIndex = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return WillPopScope(
+      onWillPop: () async {
+        final NavigatorState navigator =
+            _navigatorKeys[_selectedIndex].currentState;
+        if (!navigator.canPop()) return true;
+        navigator.pop();
+
+        return false;
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(/*bottom: miniplayerHeight*/),
+                child: IndexedStack(
+                  index: _selectedIndex,
+                  children: /*const*/ <Widget>[
+                    NavigatorPage(
+                      navigatorKey: _navigatorKeys[0],
+                      child: MainScreen(),
+                    ),
+                    NavigatorPage(
+                      navigatorKey: _navigatorKeys[1],
+                      child: LibraryScreen(),
+                    ),
+                    Container(),
+                  ],
+                ),
+              ),
+              AudioServiceWidget(
+                child: AudioControllerWidget(),
+              ),
+            ],
+          ),
+        ),
+        /*PageTransitionSwitcher(
+          transitionBuilder: (
+            Widget child,
+            Animation<double> animation,
+            Animation<double> secondaryAnimation,
+          ) {
+            return FadeThroughTransition(
+              animation: animation,
+              secondaryAnimation: secondaryAnimation,
+              child: child,
+            );
+          },
+          child: _selectedIndex == 0
+              ? MainScreen()
+              : ProvSecScreen() //pageList[_selectedIndex],
+          ),*/
+        bottomNavigationBar: ValueListenableBuilder(
+          builder: (BuildContext context, double value, Widget child) {
+            if (value == 1)
+              return Container(height: 0);
+            else
+              return child;
+          },
+          valueListenable: playerExpandProgress,
+          child: BottomNavigationBar(
+            items: const <BottomNavigationBarItem>[
+              BottomNavigationBarItem(
+                icon: Icon(Icons.home),
+                title: Text('Feed'),
+              ),
+              BottomNavigationBarItem(
+                icon: Icon(Icons.library_books),
+                title: Text('Library'),
+              ),
+            ],
+            currentIndex: _selectedIndex,
+            selectedItemColor: Colors.blue,
+            onTap: (index) {
+              if (index == _selectedIndex) {
+                final NavigatorState navigator =
+                    _navigatorKeys[index].currentState;
+                while (navigator.canPop()) navigator.pop();
+              } else
+                setState(() {
+                  _selectedIndex = index;
+                });
+            },
+          ),
+        ),
+        floatingActionButton: ValueListenableBuilder(
+          builder: (BuildContext context, Episode value, Widget child) {
+            if (value != null)
+              return Container(height: 0);
+            else
+              return child;
+          },
+          valueListenable: currentlyPlaying,
+          child: FloatingActionButton(
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext context) => Material(
+                  child: AddFeedWidget(
+                    onSubmit: (url) async {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => LoadPodcastScreen(
+                                podcastFuture: podcastFromUrl(url))),
+                      );
+                    },
+                  ),
+                ),
+              );
+            },
+            tooltip: 'Add RSS',
+            child: Icon(Icons.add),
+          ),
+        ),
+      ),
+    );
+  }
+}
