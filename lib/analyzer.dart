@@ -522,12 +522,8 @@ void loadPlaylistsFromPrefs() {
 }
 
 List<Episode> getPlaylistContent(final String playlistName) {
-  if (playlists.isEmpty) {
-    print('E');
-    loadPlaylistsFromPrefs();
-  }
-  print('A');
-  print(playlists[playlistName].toString() + "; a");
+  if (playlists.isEmpty) loadPlaylistsFromPrefs();
+
   if (!playlists.containsKey(playlistName)) return List();
   return playlists[playlistName];
 }
