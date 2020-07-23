@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -7,6 +6,8 @@ import 'package:podcast_player/widgets/episode_list_tile.dart';
 
 import '../analyzer.dart';
 import '../main.dart';
+
+enum PopupMenu { rss }
 
 class PodcastOverviewScreen extends StatefulWidget {
   const PodcastOverviewScreen({Key key, @required this.feedUrl})
@@ -58,9 +59,20 @@ class _PodcastOverviewScreenState extends State<PodcastOverviewScreen> {
           ],
         ),
         actions: <Widget>[
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.more_vert),
+          PopupMenuButton<PopupMenu>(
+            onSelected: (PopupMenu result) {
+              switch (result) {
+                case PopupMenu.rss:
+                  openLinkInBrowser(context, podcast.url);
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<PopupMenu>>[
+              const PopupMenuItem<PopupMenu>(
+                value: PopupMenu.rss,
+                child: Text('View RSS'),
+              ),
+            ],
           )
         ],
       ),
