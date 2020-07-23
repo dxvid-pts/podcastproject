@@ -1,9 +1,11 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/download_icon_widget.dart';
 import 'package:podcast_player/widgets/episode_progress_indicator.dart';
 import 'package:podcast_player/widgets/player.dart';
+import 'package:podcast_player/widgets/playlist_modal.dart';
 
 import '../main.dart';
 
@@ -26,6 +28,17 @@ class EpisodeDescriptionScreen extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 DownloadIconButton(episodeAudioUrl: episode.audioUrl),
+                IconButton(
+                  tooltip: 'Add to Playlist',
+                  icon: Icon(Icons.playlist_add),
+                  onPressed: () {
+                    showModalBottomSheet(useRootNavigator: true,
+                        context: context,
+                        builder: (context) {
+                          return PlaylistModal(episode: episode);
+                        });
+                  },
+                ),
                 IconButton(
                   tooltip: 'Play/Pause',
                   icon: ValueListenableBuilder(

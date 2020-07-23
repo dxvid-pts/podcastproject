@@ -11,7 +11,6 @@ import 'package:podcast_player/main.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:xml/xml.dart' as xmlDoc;
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
 import 'package:xml/xml.dart';
@@ -60,16 +59,13 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
 
   //refresh Feeds
   //if (skipSharedPreferences)
-    for (String url in keys) {
-      if (url.startsWith('feed:')) url = url.split('feed:')[1];
+  for (String url in keys) {
+    if (url.startsWith('feed:')) url = url.split('feed:')[1];
 
-      try{
-        podcastFromXml(url, await fetchXml(url));
-      }catch(_){
-
-      }
-
-    }
+    try {
+      podcastFromXml(url, await fetchXml(url));
+    } catch (_) {}
+  }
 }
 
 /*Stream<Podcast> loadPodcastsOldStream(
@@ -137,7 +133,8 @@ Future<String> fetchXmlOnIsolate(final String url) async {
 }
 
 Future<Podcast> podcastFromXml(final String url, final String xml) async {
-  final List returns = await compute(podcastFromXmlOnIsolate, [url, xml]).catchError((onError){
+  final List returns =
+      await compute(podcastFromXmlOnIsolate, [url, xml]).catchError((onError) {
     print('onError $onError');
   });
   Podcast podcast = returns[0];
@@ -162,7 +159,7 @@ Future<Podcast> podcastFromXml(final String url, final String xml) async {
   return podcast;
 }
 
-List podcastFromXmlOnIsolate(List<String> args){
+List podcastFromXmlOnIsolate(List<String> args) {
   String url = args[0];
   final String xml = args[1];
   Map<String, Episode> episodesIsolate = Map();
@@ -171,7 +168,7 @@ List podcastFromXmlOnIsolate(List<String> args){
 
   Podcast podcast = Podcast();
   if (url.startsWith('feed:')) url = url.split('feed:')[1];
-  final document = XmlDocument.parse(xml);// xmlDoc.parse(xml);
+  final document = XmlDocument.parse(xml); // xmlDoc.parse(xml);
 
   final channelElement = document.findAllElements("channel").first;
 
@@ -457,6 +454,28 @@ Future<List<History>> getHistory() async {
 
 Map<String, List<Episode>> playlists = Map();
 
+bool isEpisodeInPlaylist(final Episode episode, final String playlistName) {
+  for (Episode element in getPlaylistContent(playlistName))
+    if (element.title == episode.title) return true;
+  return false;
+}
+
+void removeFromPlaylist(final Episode episode, final String playlistName) {
+  if (!playlists.containsKey(playlistName)) {
+    print('object');
+    return;
+  }
+
+  playlists.update(playlistName, (list) => list..remove(episode));
+
+  final String key = 'pl:$playlistName';
+  List<String> value = (prefs.getStringList(key) ?? List());
+  if (value.contains(episode.audioUrl))
+    value.remove(episode
+        .audioUrl); //'${episode.audioUrl}$splitForm${datetime.toIso8601String()}'
+  prefs.setStringList(key, value);
+}
+
 void addToPlaylist(final Episode episode, final String playlistName,
     {bool ignorePrefs = false}) {
   if (playlists.containsKey(playlistName))
@@ -466,10 +485,12 @@ void addToPlaylist(final Episode episode, final String playlistName,
 
   if (!ignorePrefs) {
     //final datetime = DateTime.now();
-    final String key = 'pl:$playlistName',
-        value = episode
-            .audioUrl; //'${episode.audioUrl}$splitForm${datetime.toIso8601String()}'
-    prefs.setString(key, value);
+    final String key = 'pl:$playlistName';
+
+    List<String> value = (prefs.getStringList(key) ?? List())
+      ..add(episode
+          .audioUrl); //'${episode.audioUrl}$splitForm${datetime.toIso8601String()}'
+    prefs.setStringList(key, value);
   }
 }
 
@@ -485,20 +506,29 @@ Set<String> listPlaylists() {
   return playlistNames;
 }
 
-void loadPlaylists() {
+void loadPlaylistsFromPrefs() {
   prefs.getKeys().forEach((prefKey) {
     if (prefKey.startsWith('pl:')) {
       final String playlistName = prefKey.replaceFirst('pl:', '');
-      final String audioUrl = prefs.getString(prefKey);
+      final List<String> episodeUrlList =
+          prefs.getStringList(prefKey) ?? List();
 
-      addToPlaylist(episodes[audioUrl], playlistName, ignorePrefs: true);
+      for (String audioUrl in episodeUrlList) {
+        print(audioUrl);
+        addToPlaylist(episodes[audioUrl], playlistName, ignorePrefs: true);
+      }
     }
   });
 }
 
 List<Episode> getPlaylistContent(final String playlistName) {
-  if (playlists.isEmpty) loadPlaylists();
-
+  if (playlists.isEmpty) {
+    print('E');
+    loadPlaylistsFromPrefs();
+  }
+  print('A');
+  print(playlists[playlistName].toString() + "; a");
+  if (!playlists.containsKey(playlistName)) return List();
   return playlists[playlistName];
 }
 

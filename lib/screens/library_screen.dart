@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:podcast_player/screens/downloaded_episodes_screen.dart';
 import 'package:podcast_player/screens/history_screen.dart';
+import 'package:podcast_player/screens/playlist_overview_screen.dart';
 import 'package:podcast_player/screens/settings_screen.dart';
 import 'package:podcast_player/widgets/body_layout_widget.dart';
 
@@ -59,7 +60,7 @@ class LibraryScreen extends StatelessWidget {
           children: [
             HistoryScreen(),
             DownloadedEpisodesScreen(),
-            Icon(Icons.directions_bike),
+            PlaylistOverviewScreen(),
           ],
         ), /*Column(
           crossAxisAlignment: CrossAxisAlignment.center,
