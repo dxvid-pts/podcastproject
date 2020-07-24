@@ -21,7 +21,7 @@ ValueNotifier<double> playerExpandProgress = ValueNotifier(0);
 
 const double playerMinHeight = 70;
 const double playerMaxHeight = 370;
-const double miniplayerPercentage = 0.2;
+const double miniplayerPercentage = 0.3;
 
 class AudioControllerWidget extends StatefulWidget {
   @override
@@ -126,6 +126,8 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                   .then((value) => playerExpandProgress.value = percentage);
 
               final bool miniplayer = percentage < miniplayerPercentage;
+              final double width = MediaQuery.of(context).size.width;
+              final maxImgSize = width * 0.4;
 
               //final img = Image.network(podcasts[currentEpisode.podcastUrl].img);
               final img = Image(
@@ -157,14 +159,16 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
               if (!miniplayer) {
                 //Declare additional widgets (eg. SkipButton) and variables
 
-                final percentageExpandedPlayer = percentageFromValueInRange(
-                    min: playerMinHeight, max: playerMaxHeight, value: height);
+                var percentageExpandedPlayer = percentageFromValueInRange(
+                    min: playerMaxHeight * miniplayerPercentage +
+                        playerMinHeight,
+                    max: playerMaxHeight,
+                    value: height);
+                if (percentageExpandedPlayer < 0) percentageExpandedPlayer = 0;
                 final paddingVertical = valueFromPercentageInRange(
                     min: 0, max: 10, percentage: percentageExpandedPlayer);
                 final double heightWithoutPadding =
                     height - paddingVertical * 2;
-                final double width = MediaQuery.of(context).size.width;
-                final maxImgSize = width * 0.4;
                 final double imageSize = heightWithoutPadding > maxImgSize
                     ? maxImgSize
                     : heightWithoutPadding;
@@ -175,9 +179,9 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                     ) /
                     2;
 
-                print('width $width');
-                print('padding $paddingLeft');
-                print('add ${paddingLeft * 2 + imageSize}');
+                // print('width $width');
+                // print('padding $paddingLeft');
+                // print('add ${paddingLeft * 2 + imageSize}');
 
                 final buttonSkipForward = IconButton(
                   icon: Icon(Icons.forward_30),
@@ -231,7 +235,11 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 33),
                             child: Opacity(
-                              opacity: percentageExpandedPlayer,
+                              opacity: percentageExpandedPlayer > 1
+                                  ? 1
+                                  : percentageExpandedPlayer < 0
+                                      ? 0
+                                      : percentageExpandedPlayer,
                               child: Column(
                                 children: [
                                   text,
@@ -282,6 +290,16 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                   ),
                 );
               }
+              //Mniplayer
+              final percentageMiniplayer = percentageFromValueInRange(
+                  min: playerMinHeight,
+                  max: playerMaxHeight * miniplayerPercentage + playerMinHeight,
+                  value: height);
+              var elementOpacity = 1 - 1 * percentageMiniplayer;
+              if (elementOpacity > 1) elementOpacity = 1;
+              if (elementOpacity < 0) elementOpacity = 0;
+              final prgressIndicatorHeight = 4 - 4 * percentageMiniplayer;
+
               return Material(
                 child: Container(
                   decoration: BoxDecoration(
@@ -298,45 +316,66 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                       Expanded(
                         child: Row(
                           children: [
-                            img,
+                            ConstrainedBox(
+                              constraints:
+                                  BoxConstraints(maxHeight: maxImgSize),
+                              child: img,
+                            ),
                             Expanded(
                               child: Padding(
                                 padding: const EdgeInsets.only(left: 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    SizedBox(
-                                      height: 22,
-                                      child: Marquee(
-                                        text: currentEpisode.title,
-                                        blankSpace: 20,
-                                        pauseAfterRound: Duration(seconds: 5),
+                                child: Opacity(
+                                  opacity: elementOpacity,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      SizedBox(
+                                        height: 22,
+                                        child: Marquee(
+                                          text: currentEpisode.title,
+                                          blankSpace: 20,
+                                          pauseAfterRound: Duration(seconds: 5),
+                                          style: Theme.of(context)
+                                              .textTheme
+                                              .bodyText2
+                                              .copyWith(fontSize: 16),
+                                        ),
+                                      ),
+                                      Text(
+                                        podcasts[currentEpisode.podcastUrl]
+                                            .title,
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodyText2
-                                            .copyWith(fontSize: 16),
+                                            .copyWith(
+                                                color: Colors.black
+                                                    .withOpacity(0.55)),
                                       ),
-                                    ),
-                                    Text(
-                                      podcasts[currentEpisode.podcastUrl].title,
-                                      style: Theme.of(context)
-                                          .textTheme
-                                          .bodyText2
-                                          .copyWith(
-                                              color: Colors.black
-                                                  .withOpacity(0.55)),
-                                    ),
-                                  ],
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
-                            buttonPlay,
+                            Padding(
+                              padding: const EdgeInsets.only(right: 3),
+                              child: Opacity(
+                                opacity: elementOpacity,
+                                child: buttonPlay,
+                              ),
+                            ),
                           ],
                         ),
                       ),
-                      progressIndicator,
+                      SizedBox(
+                        height: prgressIndicatorHeight,
+                        child: Opacity(
+                          opacity: elementOpacity,
+                          child: progressIndicator,
+                        ),
+                      ),
                     ],
                   ),
                 ),

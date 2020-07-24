@@ -159,7 +159,7 @@ class _AppState extends State<App> {
         bottomNavigationBar: ValueListenableBuilder(
           builder: (BuildContext context, double value, Widget child) {
             if (value == null) return child;
-            var opacity = 1 - value * 2;
+            var opacity = 1 - value;
             if (opacity < 0) opacity = 0;
             if (opacity > 1) opacity = 1;
 
