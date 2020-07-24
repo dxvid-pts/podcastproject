@@ -1,3 +1,4 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -8,6 +9,7 @@ import 'package:podcast_player/widgets/playlist_modal.dart';
 
 import '../analyzer.dart';
 import '../main.dart';
+import '../shared_axis_page_route.dart';
 
 class EpisodeDescriptionScreen extends StatelessWidget {
   final Episode episode;
@@ -26,13 +28,11 @@ class EpisodeDescriptionScreen extends StatelessWidget {
         children: [
           InkWell(
             onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) =>
-                      PodcastOverviewScreen(feedUrl: podcast.url),
-                ),
-              );
+              Navigator.of(context).push(SharedAxisPageRoute(
+                  page: PodcastOverviewScreen(
+                    feedUrl: podcast.url,
+                  ),
+                  transitionType: SharedAxisTransitionType.scaled));
             },
             child: Padding(
               padding: const EdgeInsets.all(3),
