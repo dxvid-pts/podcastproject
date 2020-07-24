@@ -4,13 +4,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:audio_service/audio_service.dart';
-import 'package:flutter_html/flutter_html.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:marquee/marquee.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:podcast_player/main.dart';
-import 'package:podcast_player/screens/provisorisch_description.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/progress_slider_widget.dart';
 
@@ -21,7 +19,9 @@ ValueNotifier<Episode> currentlyPlaying = ValueNotifier(null);
 ValueNotifier<double> playerExpandProgress = ValueNotifier(0);
 //Episode currentlyPlaying;
 
-const double miniplayerHeight = 70;
+const double playerMinHeight = 70;
+const double playerMaxHeight = 370;
+const double miniplayerPercentage = 0.2;
 
 class AudioControllerWidget extends StatefulWidget {
   @override
@@ -34,7 +34,6 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
   bool isPlaying;
   Episode currentEpisode;
   Stream<int> positionUpdateStream;
-  double maxHeight = 370;
 
   @override
   void initState() {
@@ -111,14 +110,13 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    //if()
     return currentEpisode == null
         ? Container(
             height: 0,
           )
         : ExpandableWidget(
-            minHeight: miniplayerHeight,
-            maxHeight: maxHeight,
+            minHeight: playerMinHeight,
+            maxHeight: playerMaxHeight,
             /*onDragDown: () {
               currentlyPlaying.value = null;
               AudioService.stop();
@@ -126,9 +124,8 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
             builder: (height, percentage) {
               Future.delayed(Duration(seconds: 0))
                   .then((value) => playerExpandProgress.value = percentage);
-              //  print(percentage);
 
-              final bool miniplayer = percentage < 0.2;
+              final bool miniplayer = percentage < miniplayerPercentage;
 
               //final img = Image.network(podcasts[currentEpisode.podcastUrl].img);
               final img = Image(
@@ -158,18 +155,29 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
               );
 
               if (!miniplayer) {
-                //Declare additional widgets (eg. SkipButton)
+                //Declare additional widgets (eg. SkipButton) and variables
 
+                final percentageExpandedPlayer = percentageFromValueInRange(
+                    min: playerMinHeight, max: playerMaxHeight, value: height);
+                final paddingVertical = valueFromPercentageInRange(
+                    min: 0, max: 10, percentage: percentageExpandedPlayer);
+                final double heightWithoutPadding =
+                    height - paddingVertical * 2;
                 final double width = MediaQuery.of(context).size.width;
-                final double imageSize = width * 0.4;
-
-                final _paddingLeft = (percentage * (width - imageSize)) / 2;
-
-                // var _paddingLeft = (percentage - 0.2) / (width - imageSize ) / 3 * 100000;
+                final maxImgSize = width * 0.4;
+                final double imageSize = heightWithoutPadding > maxImgSize
+                    ? maxImgSize
+                    : heightWithoutPadding;
+                final paddingLeft = valueFromPercentageInRange(
+                      min: 0,
+                      max: width - imageSize,
+                      percentage: percentageExpandedPlayer,
+                    ) /
+                    2;
 
                 print('width $width');
-                print('padding $_paddingLeft');
-                print('add ${_paddingLeft * 2 + imageSize}');
+                print('padding $paddingLeft');
+                print('add ${paddingLeft * 2 + imageSize}');
 
                 final buttonSkipForward = IconButton(
                   icon: Icon(Icons.forward_30),
@@ -209,42 +217,44 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                     color: Colors.transparent,
                     child: Column(
                       children: [
-                        Container(
+                        Align(
                           alignment: Alignment.centerLeft,
                           child: Padding(
                             padding: EdgeInsets.only(
-                                left: _paddingLeft, top: 10, bottom: 10),
-                            child: SizedBox(
-                                width: imageSize,
-                                height: imageSize,
-                                child: img),
+                                left: paddingLeft,
+                                top: paddingVertical,
+                                bottom: paddingVertical),
+                            child: SizedBox(height: imageSize, child: img),
                           ),
                         ),
                         Expanded(
                           child: Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 33),
-                            child: Column(
-                              children: [
-                                text,
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    buttonSkipBackwards,
-                                    buttonPlayExpanded,
-                                    buttonSkipForward
-                                  ],
-                                ),
-                                progressIndicator,
-                                /*RaisedButton(
-                                  child: Text('open description'),
-                                  onPressed: () =>
-                                      openDescription.value = currentEpisode,
-                                )*/
-                              ],
+                            child: Opacity(
+                              opacity: percentageExpandedPlayer,
+                              child: Column(
+                                children: [
+                                  text,
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      buttonSkipBackwards,
+                                      buttonPlayExpanded,
+                                      buttonSkipForward
+                                    ],
+                                  ),
+                                  progressIndicator,
+                                  /*RaisedButton(
+                                    child: Text('open description'),
+                                    onPressed: () =>
+                                        openDescription.value = currentEpisode,
+                                  )*/
+                                ],
+                              ),
                             ),
                           ),
                         ),
-                        /*Expanded(
+                        /* Expanded(
                           child: DraggableScrollableSheet(
                             initialChildSize: 0.5,
                             minChildSize: 0.2,

@@ -158,10 +158,22 @@ class _AppState extends State<App> {
           ),*/
         bottomNavigationBar: ValueListenableBuilder(
           builder: (BuildContext context, double value, Widget child) {
-            if (value == 1)
-              return Container(height: 0);
-            else
-              return child;
+            if (value == null) return child;
+            var opacity = 1 - value * 2;
+            if (opacity < 0) opacity = 0;
+            if (opacity > 1) opacity = 1;
+
+            return SizedBox(
+              height: kBottomNavigationBarHeight -
+                  kBottomNavigationBarHeight * value,
+              child: Transform.translate(
+                offset: Offset(0.0, kBottomNavigationBarHeight * value * 0.5),
+                child: Opacity(
+                  opacity: opacity,
+                  child: child,
+                ),
+              ),
+            );
           },
           valueListenable: playerExpandProgress,
           child: BottomNavigationBar(

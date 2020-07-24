@@ -80,9 +80,19 @@ class History {
   History(this.podcastUrl, this.episodeAudioUrl, this.dateTime);
 }
 
-class DlState{
+class DlState {
   final String taskId;
   final int progress;
 
   DlState(this.taskId, this.progress);
+}
+
+//Calculates n within a range of values
+double valueFromPercentageInRange({@required final double min, max, percentage}) {
+  return percentage * (max - min) + min;
+}
+
+//Calculates the percentage of a value within a given range of values
+double percentageFromValueInRange({@required final double min, max, value}) {
+  return (value - min) / (max - min);
 }
