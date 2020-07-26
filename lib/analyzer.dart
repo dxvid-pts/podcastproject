@@ -32,6 +32,7 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
 
     keys = prefs.getKeys()..removeWhere((key) => !key.startsWith('feed:'));
 
+    podcastCount = keys.length;
     print('load podcasts: ' + keys.length.toString());
 
     //loadCached
@@ -462,7 +463,6 @@ bool isEpisodeInPlaylist(final Episode episode, final String playlistName) {
 
 void removeFromPlaylist(final Episode episode, final String playlistName) {
   if (!playlists.containsKey(playlistName)) {
-    print('object');
     return;
   }
 
@@ -514,7 +514,6 @@ void loadPlaylistsFromPrefs() {
           prefs.getStringList(prefKey) ?? List();
 
       for (String audioUrl in episodeUrlList) {
-        print(audioUrl);
         addToPlaylist(episodes[audioUrl], playlistName, ignorePrefs: true);
       }
     }

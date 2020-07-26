@@ -1,15 +1,19 @@
-import 'package:flutter/cupertino.dart';
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:podcast_player/screens/podcast_overview_screen.dart';
 import 'package:podcast_player/screens/settings_screen.dart';
 import 'package:podcast_player/widgets/episode_list_tile.dart';
+import 'package:podcast_player/widgets/text_dialog_widget.dart';
 import '../analyzer.dart';
 import '../podcast_icons_icons.dart';
+import '../shared_axis_page_route.dart';
 import 'cast_test_screen_remove.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/body_layout_widget.dart';
 import 'package:podcast_player/widgets/podcast_list_tile.dart';
 
 import '../main.dart';
+import 'load_podcast_overview_screen.dart';
 
 class MainScreen extends StatelessWidget {
   @override
@@ -49,8 +53,6 @@ class MainScreen extends StatelessWidget {
             return RefreshIndicator(
               onRefresh: () async {
                 await loadPodcasts(skipSharedPreferences: true);
-                //updateStream = loadPodcasts(skipSharedPreferences: true).asBroadcastStream();
-                // await updateStream.last;
               },
               child: ListView(
                 children: <Widget>[
@@ -66,16 +68,11 @@ class MainScreen extends StatelessWidget {
                   GridView.count(
                     primary: false,
                     shrinkWrap: true,
-                    //physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(5),
                     crossAxisCount: 4,
                     crossAxisSpacing: 5,
                     mainAxisSpacing: 5,
-                    children: podcasts.values
-                        .map((p) => PodcastListTile(
-                              podcast: p,
-                            ))
-                        .toList(),
+                    children: generateListTiles(context),
                   ),
                   Align(
                       alignment: Alignment.centerLeft,
@@ -104,4 +101,59 @@ class MainScreen extends StatelessWidget {
           }),
     );
   }
+}
+
+//Layout: 4x3 -> 12
+List<PodcastListTile> generateListTiles(BuildContext context) {
+  List<PodcastListTile> tiles = List();
+  //TODO int pages = (podcasts.values.length / 12).ceil();
+
+  for (Podcast podcast in podcasts.values)
+    tiles.add(
+      PodcastListTile(
+        podcast: podcast,
+        type: PodcastListTileType.IMG,
+        onTap: () => Navigator.of(context).push(SharedAxisPageRoute(
+            page: PodcastOverviewScreen(
+              feedUrl: podcast.url,
+            ),
+            transitionType: SharedAxisTransitionType.scaled)),
+      ),
+    );
+
+  var _podcastCount = podcastCount;
+  if (_podcastCount == null) _podcastCount = 0;
+
+  for (int index = 0; index < _podcastCount - podcasts.values.length; index++) {
+    tiles.add(
+      PodcastListTile(type: PodcastListTileType.SKELETON),
+    );
+  }
+
+  tiles.add(
+    PodcastListTile(
+      type: PodcastListTileType.ADD,
+      onTap: () {
+        showDialog(
+            context: context,
+            builder: (context) {
+              return TextDialogWidget(
+                title: 'Add Podcast',
+                hint: 'RSS-Feed',
+                okButtonText: 'Add',
+                onSubmit: (url) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => LoadPodcastScreen(
+                            podcastFuture: podcastFromUrl(url))),
+                  );
+                },
+              );
+            });
+      },
+    ),
+  );
+
+  return tiles;
 }

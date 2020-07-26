@@ -4,11 +4,9 @@ import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
-import 'package:podcast_player/screens/load_podcast_overview_screen.dart';
 import 'package:podcast_player/screens/main_screen.dart';
 import 'package:podcast_player/screens/library_screen.dart';
 import 'package:podcast_player/utils.dart';
-import 'package:podcast_player/widgets/add_feed_widget.dart';
 import 'package:podcast_player/widgets/navigator_page_widget.dart';
 
 import 'package:podcast_player/widgets/navigator_widget.dart';
@@ -24,6 +22,9 @@ Map<String, DownloadTask> episodeDownloadInfo = Map();
 Map<String, int> episodeDownloadStates = Map();
 
 StreamController<String> updateStream = StreamController<String>.broadcast();
+
+//used to display skeletons in main_screen.dart
+int podcastCount;
 
 //Stream<Podcast> updateStream;
 bool firstEpisodeLoadedFromSP = false;
@@ -201,7 +202,7 @@ class _AppState extends State<App> {
             },
           ),
         ),
-        floatingActionButton: ValueListenableBuilder(
+       /* floatingActionButton: ValueListenableBuilder(
           builder: (BuildContext context, Episode value, Widget child) {
             if (value != null)
               return Container(height: 0);
@@ -230,7 +231,7 @@ class _AppState extends State<App> {
             tooltip: 'Add RSS',
             child: Icon(Icons.add),
           ),
-        ),
+        ),*/
       ),
     );
   }
