@@ -38,7 +38,7 @@ class _TextDialogWidgetState extends State<TextDialogWidget> {
         decoration: InputDecoration(
           hintText: widget.hint,
           labelText: 'Enter the Value',
-          errorText: _validate ? 'Value Can\'t Be Empty' : null,
+          errorText: _validate ? 'Text Can\'t Be Empty' : null,
         ),
       ),
       actions: <Widget>[

@@ -1,6 +1,7 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:podcast_player/screens/episode_description_screen.dart';
+import 'package:podcast_player/screens/podcast_overview_screen.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/download_icon_widget.dart';
 import 'package:podcast_player/widgets/episode_progress_indicator.dart';
@@ -75,7 +76,19 @@ class EpisodeListTile extends StatelessWidget {
           );
         },
         child: ListTile(
-          leading: leading,
+          leading: leading == null
+              ? null
+              : Tooltip(
+                  message: 'Open <PODCAST>',
+                  child: InkWell(
+                    onTap: () => Navigator.of(context).push(SharedAxisPageRoute(
+                        page: PodcastOverviewScreen(
+                          feedUrl: podcasts[episode.podcastUrl].url,
+                        ),
+                        transitionType: SharedAxisTransitionType.scaled)),
+                    child: leading,
+                  ),
+                ),
           contentPadding: EdgeInsets.only(
             left: leading == null ? 22 : 12,
             right: 22,
