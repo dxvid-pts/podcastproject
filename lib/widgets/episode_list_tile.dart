@@ -79,7 +79,8 @@ class EpisodeListTile extends StatelessWidget {
           leading: leading == null
               ? null
               : Tooltip(
-                  message: 'Open <PODCAST>',
+                  message:
+                      "Open '${shortName(podcasts[episode.podcastUrl].title)}'",
                   child: InkWell(
                     onTap: () => Navigator.of(context).push(SharedAxisPageRoute(
                         page: PodcastOverviewScreen(

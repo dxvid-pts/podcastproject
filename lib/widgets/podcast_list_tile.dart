@@ -23,9 +23,7 @@ class PodcastListTile extends StatelessWidget {
         return Hero(
           tag: podcast.url,
           child: Tooltip(
-            message: podcast.title.length >= 42
-                ? podcast.title.substring(0, 42) + '...'
-                : podcast.title,
+            message: shortName(podcast.title),
             child: Ink.image(
               image: getImageProvider(podcast.img),
               fit: BoxFit.cover,

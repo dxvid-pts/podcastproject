@@ -96,3 +96,29 @@ double valueFromPercentageInRange({@required final double min, max, percentage})
 double percentageFromValueInRange({@required final double min, max, value}) {
   return (value - min) / (max - min);
 }
+
+const maxCharacters = 33;
+
+//Creates a shorter String with a maximum of "maxCharacters". Used to create short tooltips.
+String shortName(final String name) {
+  final words = name.split(' ');
+  String shortName = words[0];
+
+  if (shortName.length > maxCharacters)
+    return shortName.substring(0, maxCharacters) + "...";
+
+  for (int i = 1; i < words.length; i++) {
+    final ram = shortName + ' ' + words[i];
+
+    if (ram.length <= maxCharacters)
+      shortName = ram;
+    else if (words[i].length > 7) {
+      if ((shortName + ' ').length == maxCharacters) return shortName + '...';
+
+      return ram.substring(0, maxCharacters) + "...";
+    } else
+      return shortName + "...";
+  }
+
+  return shortName;
+}
