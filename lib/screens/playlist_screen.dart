@@ -3,6 +3,7 @@ import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/episode_list_tile.dart';
 
 import '../analyzer.dart';
+import '../main.dart';
 
 class PlaylistScreen extends StatelessWidget {
   final String playlistName;
@@ -20,6 +21,9 @@ class PlaylistScreen extends StatelessWidget {
         children: [
           for (Episode episode in getPlaylistContent(playlistName))
             EpisodeListTile(
+              leading: Image(
+                image: getImageProvider(podcasts[episode.podcastUrl].img),
+              ),
               episode: episode,
             ),
         ],

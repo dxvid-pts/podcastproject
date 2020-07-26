@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_html/flutter_html.dart';
-import 'package:podcast_player/main.dart';
 
 import '../screens/main_screen.dart';
 

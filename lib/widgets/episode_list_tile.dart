@@ -1,7 +1,5 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:just_audio/just_audio.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:podcast_player/screens/episode_description_screen.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/download_icon_widget.dart';

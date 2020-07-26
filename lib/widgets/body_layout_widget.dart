@@ -1,6 +1,4 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:podcast_player/widgets/player.dart';
 
 class BodyLayoutWidget extends StatelessWidget {
   final Widget appBar;
