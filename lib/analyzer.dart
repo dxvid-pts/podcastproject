@@ -59,14 +59,14 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
   }
 
   //refresh Feeds
-  //if (skipSharedPreferences)
-  for (String url in keys) {
-    if (url.startsWith('feed:')) url = url.split('feed:')[1];
+  if (skipSharedPreferences)
+    for (String url in keys) {
+      if (url.startsWith('feed:')) url = url.split('feed:')[1];
 
-    try {
-      podcastFromXml(url, await fetchXml(url));
-    } catch (_) {}
-  }
+      try {
+        podcastFromXml(url, await fetchXml(url));
+      } catch (_) {}
+    }
 }
 
 /*Stream<Podcast> loadPodcastsOldStream(
@@ -141,11 +141,13 @@ Future<Podcast> podcastFromXml(final String url, final String xml) async {
   Podcast podcast = returns[0];
   Map<String, Episode> episodesFromIsolate = returns[1];
 
-  //PodcastAction
+  //Create ValueNotifiers for every episode
   podcast.episodes.forEach((episodeUrl) {
-    if (episodeUrl != null)
+    if (episodeUrl != null) {
       saveEpisodeState(episodeUrl, prefs.getInt('state:' + episodeUrl) ?? 0,
           save: false);
+      setEpisodeDownloadState(episodeUrl, 0,replace: false);
+    }
   });
 
   if (!podcasts.containsKey(url))
@@ -535,7 +537,7 @@ void loadDownloadedFiles() async {
       query: "SELECT * FROM task WHERE status=3");
   for (DownloadTask task in tasks) {
     episodeDownloadInfo.putIfAbsent(task.url, () => task);
-    episodeDownloadStates.putIfAbsent(task.url, () => task.progress);
+    setEpisodeDownloadState(task.url, task.progress);
   }
 
   FlutterDownloader.registerCallback(downloadCallback);
@@ -546,6 +548,42 @@ void loadDownloadedFiles() async {
 void downloadCallback(String id, DownloadTaskStatus status, int progress) {
   final SendPort send = IsolateNameServer.lookupPortByName(id);
   send.send([id, status, progress]);
+}
+
+void subscribeToDownload(final String taskId) {
+  ReceivePort _port = ReceivePort();
+  IsolateNameServer.registerPortWithName(_port.sendPort, taskId);
+  _port.listen((dynamic data) {
+    String id = data[0];
+    DownloadTaskStatus status = data[1];
+    int progress = data[2];
+
+    print('id: $id, progress $progress status $status');
+
+    //prevent errors
+    if (!episodeDownloadTasks.containsKey(id)) {
+      print('!contains id: $id');
+      print(episodeDownloadTasks.toString());
+      return;
+    }
+
+    String audioUrl = episodeDownloadTasks[id];
+    setEpisodeDownloadState(audioUrl, progress);
+
+    //remove taskId from Map when finished
+    if (status == DownloadTaskStatus.complete) {
+      episodeDownloadTasks.remove(id);
+      IsolateNameServer.removePortNameMapping(taskId);
+    }
+  });
+}
+
+void setEpisodeDownloadState(final String audioUrl, final int progress,
+    {final bool replace = true}) {
+  if (!episodeDownloadStates.containsKey(audioUrl))
+    episodeDownloadStates.putIfAbsent(audioUrl, () => ValueNotifier(progress));
+  else if(replace)
+    episodeDownloadStates[audioUrl].value = progress;
 }
 
 Map<String, ImageProvider> imageProviders = Map();

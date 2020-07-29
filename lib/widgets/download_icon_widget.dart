@@ -1,23 +1,16 @@
-import 'dart:async';
-import 'dart:isolate';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:path_provider/path_provider.dart';
 
+import '../analyzer.dart';
 import '../main.dart';
 
 class DownloadIconButton extends StatefulWidget {
   final String episodeAudioUrl;
-  final bool showGreaterZeroOnly;
-  final double iconSize;
 
-  const DownloadIconButton(
-      {Key key,
-      @required this.episodeAudioUrl,
-      this.showGreaterZeroOnly = false,
-      this.iconSize})
+  const DownloadIconButton({Key key, @required this.episodeAudioUrl})
       : super(key: key);
 
   @override
@@ -25,16 +18,11 @@ class DownloadIconButton extends StatefulWidget {
 }
 
 class _DownloadIconButtonState extends State<DownloadIconButton> {
-  ReceivePort _port = ReceivePort();
-  int _progress = 0;
   String _taskId;
-  StreamSubscription _streamListener;
 
   @override
   void initState() {
     super.initState();
-    if (episodeDownloadStates[widget.episodeAudioUrl] != null)
-      _progress = episodeDownloadStates[widget.episodeAudioUrl];
 
     if (episodeDownloadInfo[widget.episodeAudioUrl] != null)
       _taskId = episodeDownloadInfo[widget.episodeAudioUrl].taskId;
@@ -42,34 +30,36 @@ class _DownloadIconButtonState extends State<DownloadIconButton> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.showGreaterZeroOnly)
-      return DownloadIcon(
-        progress: _progress,
-        showGreaterZeroOnly: true,
-        iconSize: widget.iconSize,
-      );
-    return IconButton(
-      tooltip: 'Download',
-      icon: DownloadIcon(
-        progress: _progress,
-        showGreaterZeroOnly: false,
-      ),
-      onPressed: () {
-        if (_progress != 100)
-          download();
-        else if (_progress == 100)
-          deleteDownload();
-        else
-          pausePlayDownload();
+    return ValueListenableBuilder(
+      builder: (_, int _progress, __) {
+        if (_progress == 100)
+          return PopupMenuButton(
+            tooltip: 'Remove download',
+            onSelected: deleteDownload,
+            icon: DownloadIcon(
+              progress: _progress,
+            ),
+            itemBuilder: (BuildContext context) => <PopupMenuEntry>[
+              const PopupMenuItem(
+                value: true,
+                child: Text('Remove download'),
+              ),
+            ],
+          );
+        return IconButton(
+          tooltip: 'Download',
+          icon: DownloadIcon(
+            progress: _progress,
+          ),
+          onPressed: () {
+            if (_progress != 100) download();
+            //else
+            // pausePlayDownload();
+          },
+        );
       },
+      valueListenable: episodeDownloadStates[widget.episodeAudioUrl],
     );
-  }
-
-  @override
-  void dispose() {
-    if (_streamListener != null) _streamListener.cancel();
-    IsolateNameServer.removePortNameMapping(_taskId);
-    super.dispose();
   }
 
   void download() async {
@@ -81,50 +71,15 @@ class _DownloadIconButtonState extends State<DownloadIconButton> {
       openFileFromNotification:
           false, // click on notification to open downloaded file (for Android)
     );
-    setState(() {
-      _taskId = taskId;
-    });
-    IsolateNameServer.registerPortWithName(_port.sendPort, taskId);
-
-    _streamListener = _port.listen((dynamic data) async {
-      final DownloadTaskStatus status = data[1];
-      final int progress = data[2];
-
-      setState(() {
-        _progress = progress;
-      });
-
-      if (!episodeDownloadStates.containsKey(widget.episodeAudioUrl))
-        episodeDownloadStates.putIfAbsent(
-            widget.episodeAudioUrl, () => progress);
-      else
-        episodeDownloadStates.update(
-            widget.episodeAudioUrl, (value) => progress);
-
-      if (status == DownloadTaskStatus.complete) {
-        IsolateNameServer.removePortNameMapping(_taskId);
-
-        //Save file data on Comlete -> audio player has files
-        final task = (await FlutterDownloader.loadTasksWithRawQuery(
-                query: 'SELECT * FROM task WHERE status=3'))
-            .where((downloadTask) => downloadTask.taskId == taskId)
-            .first;
-
-        if (!episodeDownloadInfo.containsKey(widget.episodeAudioUrl))
-          episodeDownloadInfo.putIfAbsent(widget.episodeAudioUrl, () => task);
-        else
-          episodeDownloadInfo.update(widget.episodeAudioUrl, (value) => task);
-      }
-    });
+    subscribeToDownload(taskId);
+    episodeDownloadTasks.putIfAbsent(taskId, () => widget.episodeAudioUrl);
+    print('episodeDownloadTasks: ${episodeDownloadTasks.toString()}');
   }
 
-  void deleteDownload() {
+  void deleteDownload(dynamic _) {
     FlutterDownloader.remove(taskId: _taskId, shouldDeleteContent: false);
-    episodeDownloadStates.remove(widget.episodeAudioUrl);
     episodeDownloadInfo.remove(widget.episodeAudioUrl);
-    setState(() {
-      _progress = 0;
-    });
+    episodeDownloadStates[widget.episodeAudioUrl].value = 0;
   }
 
   void pausePlayDownload() {}
@@ -132,14 +87,9 @@ class _DownloadIconButtonState extends State<DownloadIconButton> {
 
 class DownloadIcon extends StatelessWidget {
   final progress;
-  final bool showGreaterZeroOnly;
   final double iconSize;
 
-  const DownloadIcon(
-      {Key key,
-      @required this.progress,
-      @required this.showGreaterZeroOnly,
-      this.iconSize})
+  const DownloadIcon({Key key, @required this.progress, this.iconSize})
       : super(key: key);
 
   @override
@@ -151,10 +101,15 @@ class DownloadIcon extends StatelessWidget {
             color: Colors.green,
           )
         : progress != 0
-            ? CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
-                value: progress / 100,
+            ? SizedBox(
+                height: iconSize == null ? null : iconSize * 2 / 3,
+                width: iconSize == null ? null : iconSize * 2 / 3,
+                child: CircularProgressIndicator(
+                  strokeWidth: iconSize != null ? 2 : 4,
+                  valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
+                  value: progress / 100,
+                ),
               )
-            : showGreaterZeroOnly ? Container() : Icon(Icons.file_download);
+            : Icon(Icons.file_download);
   }
 }

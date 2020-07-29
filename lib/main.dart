@@ -17,19 +17,24 @@ import 'analyzer.dart';
 Map<String, Podcast> podcasts = Map();
 Map<String, Episode> episodes = Map();
 
+//Stores the current playback state of episodes
 Map<String, ValueNotifier<int>> episodeStates = Map();
+
+//Used to store information about downloaded episodes such as file path, etc
 Map<String, DownloadTask> episodeDownloadInfo = Map();
-Map<String, int> episodeDownloadStates = Map();
+
+//audioUrl, progress
+Map<String, ValueNotifier<int>> episodeDownloadStates = Map();
+
+//taskId, audioUrl
+Map<String, String> episodeDownloadTasks = Map();
 
 StreamController<String> updateStream = StreamController<String>.broadcast();
 
 //used to display skeletons in main_screen.dart
 int podcastCount;
 
-//Stream<Podcast> updateStream;
 bool firstEpisodeLoadedFromSP = false;
-//TODO: bool + use currentEpisode
-ValueNotifier<Episode> openDescription = ValueNotifier(null);
 
 final List<GlobalKey<NavigatorState>> _navigatorKeys = [
   GlobalKey(),
@@ -57,32 +62,12 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.white,
         accentColor: Colors.white,
-        // textTheme: TextTheme(body1: TextStyle(fontSize: 15)),
+        /*textTheme: GoogleFonts.latoTextTheme(
+          Theme.of(context).textTheme,
+        ),*/
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: App(),
-      /*builder: (context, widget) {
-        return Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            widget,
-            AudioServiceWidget(
-              child: AudioControllerWidget(),
-            ),
-            ValueListenableBuilder(
-              builder: (BuildContext context, Episode value, Widget child) {
-                if (value != null)
-                  return ProvisorischeDescription(episode: value);
-                else
-                  return Container(
-                    height: 0,
-                  );
-              },
-              valueListenable: openDescription,
-            ),
-          ],
-        );
-      },*/
     );
   }
 }

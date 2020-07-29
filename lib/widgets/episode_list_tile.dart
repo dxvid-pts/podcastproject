@@ -25,21 +25,6 @@ class EpisodeListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String date = '<NO DATE>';
-    if (episode.date != null) {
-      final now = DateTime.now();
-      Duration diff = now.difference(episode.date);
-
-      if (diff.inHours < 24)
-        date = '${diff.inHours} hour${diff.inHours > 1 ? 's' : ''} ago';
-      else if (diff.inDays <= 7)
-        date = '${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago';
-      else {
-        date = '${episode.date.day} ${intToMonth(episode.date.month)}';
-
-        if (episode.date.year != now.year) date = '$date ${episode.date.year}';
-      }
-    }
     return Card(
       child: PositionedTapDetector(
         onLongPress: (position) {
@@ -127,23 +112,29 @@ class EpisodeListTile extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Text(date),
+                Text(episode.dateString),
                 SeparatorWidget(),
                 Text(episode.duration == null
                     ? '<NO DURATION>'
                     : '${episode.duration.inMinutes} minutes'),
-                if (episodeDownloadStates.containsKey(episode.audioUrl) &&
-                    episodeDownloadStates[episode.audioUrl] == 100)
-                  Row(
-                    children: [
-                      SeparatorWidget(),
-                      DownloadIconButton(
-                        episodeAudioUrl: episode.audioUrl,
-                        showGreaterZeroOnly: true,
-                        iconSize: 15,
-                      ),
-                    ],
-                  ),
+                ValueListenableBuilder(
+                  builder: (_, int _progress, child) {
+                    if (_progress > 0)
+                      return Row(
+                        children: [
+                          child,
+                          DownloadIcon(
+                            progress: _progress,
+                            iconSize: 15,
+                          ),
+                        ],
+                      );
+                    else
+                      return Container();
+                  },
+                  child: SeparatorWidget(),
+                  valueListenable: episodeDownloadStates[episode.audioUrl],
+                ),
               ],
             ),
           ),
@@ -154,7 +145,6 @@ class EpisodeListTile extends StatelessWidget {
                 )
               : IconButton(
                   tooltip: 'Play/Pause',
-                  //iconSize: 24,
                   icon: ValueListenableBuilder(
                     builder: (BuildContext context, int value, Widget child) {
                       return EpisodeProgressIndicator(
@@ -175,12 +165,6 @@ class EpisodeListTile extends StatelessWidget {
             Navigator.of(context).push(SharedAxisPageRoute(
                 page: EpisodeDescriptionScreen(episode: episode),
                 transitionType: SharedAxisTransitionType.horizontal));
-            /*Navigator.push(
-              context,
-              MaterialPageRoute(
-                  builder: (context) =>
-                      EpisodeDescriptionScreen(episode: episode)),
-            );*/
           },
         ),
       ),

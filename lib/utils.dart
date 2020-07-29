@@ -12,6 +12,26 @@ class Episode {
   String title, audioUrl, description, podcastUrl;
   DateTime date;
   Duration duration;
+
+  String get dateString {
+    String dateString = '<NO DATE>';
+    if (date != null) {
+      final now = DateTime.now();
+      Duration diff = now.difference(date);
+
+      if (diff.inHours < 24)
+        dateString = '${diff.inHours} hour${diff.inHours > 1 ? 's' : ''} ago';
+      else if (diff.inDays <= 7)
+        dateString = '${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago';
+      else {
+        dateString = '${date.day} ${intToMonth(date.month)}';
+
+        if (date.year != now.year) dateString = '$dateString ${date.year}';
+      }
+    }
+
+    return dateString;
+  }
 }
 
 Future<Podcast> podcastAsFuture(final Podcast podcast) async {
@@ -88,7 +108,8 @@ class DlState {
 }
 
 //Calculates n within a range of values
-double valueFromPercentageInRange({@required final double min, max, percentage}) {
+double valueFromPercentageInRange(
+    {@required final double min, max, percentage}) {
   return percentage * (max - min) + min;
 }
 

@@ -1,5 +1,4 @@
 import 'package:animations/animations.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
 import 'package:podcast_player/screens/podcast_overview_screen.dart';
