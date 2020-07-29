@@ -1,15 +1,11 @@
-import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
-import 'package:podcast_player/screens/podcast_overview_screen.dart';
 import 'package:podcast_player/screens/settings_screen.dart';
 import 'package:podcast_player/widgets/episode_list_tile.dart';
 import 'package:podcast_player/widgets/text_dialog_widget.dart';
 import '../analyzer.dart';
 import '../podcast_icons_icons.dart';
-import '../shared_axis_page_route.dart';
 import 'cast_test_screen_remove.dart';
 import 'package:podcast_player/utils.dart';
-import 'package:podcast_player/widgets/body_layout_widget.dart';
 import 'package:podcast_player/widgets/podcast_list_tile.dart';
 
 import '../main.dart';
@@ -18,7 +14,7 @@ import 'load_podcast_overview_screen.dart';
 class MainScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return BodyLayoutWidget(
+    return Scaffold(
       appBar: AppBar(
         title: Text('Podcasts'),
         actions: [

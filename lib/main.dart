@@ -114,49 +114,31 @@ class _AppState extends State<App> {
         return false;
       },
       child: Scaffold(
-        body: SafeArea(
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(/*bottom: miniplayerHeight*/),
-                child: IndexedStack(
-                  index: _selectedIndex,
-                  children: /*const*/ <Widget>[
-                    NavigatorPage(
-                      navigatorKey: _navigatorKeys[0],
-                      child: MainScreen(),
-                    ),
-                    NavigatorPage(
-                      navigatorKey: _navigatorKeys[1],
-                      child: LibraryScreen(),
-                    ),
-                    Container(),
-                  ],
-                ),
+        body: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            Padding(
+              padding: const EdgeInsets.only(/*bottom: miniplayerHeight*/),
+              child: IndexedStack(
+                index: _selectedIndex,
+                children: /*const*/ <Widget>[
+                  NavigatorPage(
+                    navigatorKey: _navigatorKeys[0],
+                    child: MainScreen(),
+                  ),
+                  NavigatorPage(
+                    navigatorKey: _navigatorKeys[1],
+                    child: LibraryScreen(),
+                  ),
+                  Container(),
+                ],
               ),
-              AudioServiceWidget(
-                child: AudioControllerWidget(),
-              ),
-            ],
-          ),
+            ),
+            AudioServiceWidget(
+              child: AudioControllerWidget(),
+            ),
+          ],
         ),
-        /*PageTransitionSwitcher(
-          transitionBuilder: (
-            Widget child,
-            Animation<double> animation,
-            Animation<double> secondaryAnimation,
-          ) {
-            return FadeThroughTransition(
-              animation: animation,
-              secondaryAnimation: secondaryAnimation,
-              child: child,
-            );
-          },
-          child: _selectedIndex == 0
-              ? MainScreen()
-              : ProvSecScreen() //pageList[_selectedIndex],
-          ),*/
         bottomNavigationBar: ValueListenableBuilder(
           builder: (BuildContext context, double value, Widget child) {
             if (value == null) return child;
@@ -202,36 +184,6 @@ class _AppState extends State<App> {
             },
           ),
         ),
-       /* floatingActionButton: ValueListenableBuilder(
-          builder: (BuildContext context, Episode value, Widget child) {
-            if (value != null)
-              return Container(height: 0);
-            else
-              return child;
-          },
-          valueListenable: currentlyPlaying,
-          child: FloatingActionButton(
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext context) => Material(
-                  child: AddFeedWidget(
-                    onSubmit: (url) async {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => LoadPodcastScreen(
-                                podcastFuture: podcastFromUrl(url))),
-                      );
-                    },
-                  ),
-                ),
-              );
-            },
-            tooltip: 'Add RSS',
-            child: Icon(Icons.add),
-          ),
-        ),*/
       ),
     );
   }
