@@ -32,7 +32,7 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
 
     keys = prefs.getKeys()..removeWhere((key) => !key.startsWith('feed:'));
 
-    podcastCount = keys.length;
+    //podcastCount = keys.length;
     print('load podcasts: ' + keys.length.toString());
 
     //loadCached

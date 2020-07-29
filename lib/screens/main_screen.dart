@@ -50,13 +50,9 @@ class MainScreen extends StatelessWidget {
           stream: updateStream.stream,
           builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
             print('update  Stream');
-            return RefreshIndicator(
-              onRefresh: () async {
-                await loadPodcasts(skipSharedPreferences: true);
-              },
-              child: ListView(
-                children: <Widget>[
-                  StreamBuilder(
+
+            final widgets = <Widget>[
+              /* StreamBuilder(
                     stream: updateStream.stream,
                     builder: (context, snapshot) {
                       if (snapshot.connectionState == ConnectionState.active)
@@ -64,38 +60,76 @@ class MainScreen extends StatelessWidget {
                       else
                         return LinearProgressIndicator();
                     },
-                  ),
-                  GridView.count(
-                    primary: false,
-                    shrinkWrap: true,
-                    padding: const EdgeInsets.all(5),
-                    crossAxisCount: 4,
-                    crossAxisSpacing: 5,
-                    mainAxisSpacing: 5,
-                    children: generateListTiles(context),
-                  ),
-                  Align(
-                      alignment: Alignment.centerLeft,
-                      child: Tab(
-                        text: 'New episodes',
-                      )),
-                  /*
-                  //TODO:
-                  children: new List.generate(this.itemCount,
-              (index) => this.itemBuilder(context, index)).toList(),
-              https://github.com/flutter/flutter/issues/61297
-                   */
-                  for (Episode e in episodes.values
-                      .where((episode) => episode.date != null)
-                      .toList()
-                        ..sort((a, b) => b.date.compareTo(a.date)))
-                    EpisodeListTile(
-                      episode: e,
-                      leading: Image(
-                        image: getImageProvider(podcasts[e.podcastUrl].img),
+                  ),*/
+              GridView.count(
+                primary: false,
+                shrinkWrap: true,
+                padding: const EdgeInsets.all(5),
+                crossAxisCount: 4,
+                crossAxisSpacing: 5,
+                mainAxisSpacing: 5,
+                children: <Widget>[
+                  ...podcasts.values
+                      .map((p) => PodcastListTile(
+                    podcast: p,
+                  ))
+                      .toList(),
+                  Tooltip(
+                    message: 'Add Podcast',
+                    child: PodcastListTileBase(
+                      child: InkWell(
+                        onTap: () {
+                          showDialog(
+                              context: context,
+                              builder: (context) {
+                                return TextDialogWidget(
+                                  title: 'Add Podcast',
+                                  hint: 'RSS-Feed',
+                                  okButtonText: 'Add',
+                                  onSubmit: (url) {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) => LoadPodcastScreen(
+                                              podcastFuture: podcastFromUrl(url))),
+                                    );
+                                  },
+                                );
+                              });
+                        },
+                        child: Center(
+                          child: Icon(Icons.add),
+                        ),
                       ),
                     ),
+                  ),
                 ],
+              ),
+              Align(
+                  alignment: Alignment.centerLeft,
+                  child: Tab(
+                    text: 'New episodes',
+                  )),
+              for (Episode e in episodes.values
+                  .where((episode) => episode.date != null)
+                  .toList()
+                ..sort((a, b) => b.date.compareTo(a.date)))
+                EpisodeListTile(
+                  episode: e,
+                  leading: Image(
+                    image: getImageProvider(podcasts[e.podcastUrl].img),
+                  ),
+                ),
+            ];
+            return RefreshIndicator(
+              onRefresh: () async {
+                await loadPodcasts(skipSharedPreferences: true);
+              },
+              child: ListView.builder(
+                  itemCount: widgets.length,
+                  itemBuilder: (_, int index) {
+                    return widgets[index];
+                  },
               ),
             );
           }),
@@ -103,7 +137,7 @@ class MainScreen extends StatelessWidget {
   }
 }
 
-//Layout: 4x3 -> 12
+/*//Layout: 4x3 -> 12
 List<PodcastListTile> generateListTiles(BuildContext context) {
   List<PodcastListTile> tiles = List();
   //TODO int pages = (podcasts.values.length / 12).ceil();
@@ -156,4 +190,4 @@ List<PodcastListTile> generateListTiles(BuildContext context) {
   );
 
   return tiles;
-}
+}*/

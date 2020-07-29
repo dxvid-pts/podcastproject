@@ -1,59 +1,48 @@
+import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:podcast_player/screens/podcast_overview_screen.dart';
 import 'package:podcast_player/utils.dart';
-import 'package:podcast_player/widgets/skeleton_widget.dart';
 import '../analyzer.dart';
+import '../shared_axis_page_route.dart';
 
 const double size = 110;
 
-enum PodcastListTileType { IMG, SKELETON, ADD }
-
 class PodcastListTile extends StatelessWidget {
   final Podcast podcast;
-  final Function onTap;
-  final PodcastListTileType type;
 
-  const PodcastListTile(
-      {Key key, this.podcast, this.onTap, this.type = PodcastListTileType.IMG})
-      : super(key: key);
+  const PodcastListTile({Key key, this.podcast}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    switch (type) {
-      case PodcastListTileType.IMG:
-        return Hero(
-          tag: podcast.url,
-          child: Tooltip(
-            message: shortName(podcast.title),
-            child: Ink.image(
-              image: getImageProvider(podcast.img),
-              fit: BoxFit.cover,
-              child: InkWell(
-                onTap: onTap,
-              ),
-            ),
-          ),
-        );
-      case PodcastListTileType.SKELETON:
-        return PodcastListTileBase(
-            child: Skeleton(
-          greyscale: 0.033,
-        ));
-      case PodcastListTileType.ADD:
-        return Tooltip(
-          message: 'Add Podcast',
-          child: PodcastListTileBase(
+    return Hero(
+      tag: podcast.img,
+      child: Tooltip(
+        message: shortName(podcast.title),
+        child: PodcastListTileBase(
+          child: Ink.image(
+            image: getImageProvider(podcast.img),
+            fit: BoxFit.cover,
             child: InkWell(
-              onTap: onTap,
-              child: Center(
-                child: Icon(Icons.add),
-              ),
+              onTap: () {
+                Navigator.of(context).push(SharedAxisPageRoute(
+                    page: PodcastOverviewScreen(
+                      feedUrl: podcast.url,
+                    ),
+                    transitionType: SharedAxisTransitionType.scaled));
+
+                /*Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => PodcastOverviewScreen(
+                              feedUrl: podcast.url,
+                            )),
+                  );*/
+              },
             ),
           ),
-        );
-      //Delete: when Null-safety
-      default:
-        return Container();
-    }
+        ),
+      ),
+    );
   }
 }
 
