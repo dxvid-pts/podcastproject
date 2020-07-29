@@ -7,19 +7,14 @@ import 'package:podcast_player/widgets/download_icon_widget.dart';
 import 'package:podcast_player/widgets/episode_progress_indicator.dart';
 import 'package:podcast_player/widgets/player.dart';
 import 'package:podcast_player/main.dart';
+import 'package:podcast_player/widgets/playlist_modal.dart';
 import 'package:positioned_tap_detector/positioned_tap_detector.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 
+import '../analyzer.dart';
 import '../shared_axis_page_route.dart';
 
-const seperatorWidget = Padding(
-  padding: const EdgeInsets.symmetric(horizontal: 5),
-  child: Icon(
-    Icons.brightness_1,
-    color: const Color(0x66000000),
-    size: 5,
-  ),
-);
+enum PopupMenuItemType { DONE, PLAYLIST }
 
 class EpisodeListTile extends StatelessWidget {
   final Episode episode;
@@ -32,48 +27,69 @@ class EpisodeListTile extends StatelessWidget {
   Widget build(BuildContext context) {
     String date = '<NO DATE>';
     if (episode.date != null) {
-      Duration diff = DateTime.now().difference(episode.date);
+      final now = DateTime.now();
+      Duration diff = now.difference(episode.date);
 
       if (diff.inHours < 24)
         date = '${diff.inHours} hour${diff.inHours > 1 ? 's' : ''} ago';
       else if (diff.inDays <= 7)
         date = '${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago';
-      else
+      else {
         date = '${episode.date.day} ${intToMonth(episode.date.month)}';
-      /* else if (diff.inDays >= 365) {
-        final years = (diff.inDays / 365).floor();
-        date = '$years year${years > 1 ? 's' : ''} ago';
-      } else if (diff.inDays >= 30.4) {
-        final months = (diff.inDays / 30.4).floor();
-        date = '$months month${months > 1 ? 's' : ''} ago';
-      } else
-        date = '${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago';*/
+
+        if (episode.date.year != now.year) date = '$date ${episode.date.year}';
+      }
     }
     return Card(
       child: PositionedTapDetector(
         onLongPress: (position) {
           showMenu(
+            useRootNavigator: true,
             position: RelativeRect.fromLTRB(
                 position.relative.dx, position.global.dy, 50, 0),
             //onSelected: () => setState(() => imageList.remove(index)),
             items: <PopupMenuEntry>[
               //PopupMenuButton(),
-              PopupMenuItem(
-                value: 0,
+              PopupMenuItem<PopupMenuItemType>(
+                value: PopupMenuItemType.DONE,
                 child: Row(
                   children: <Widget>[
-                    Icon(
-                      Icons.done,
-                      color: Colors.green,
-                    ),
+                    Icon(Icons.done),
                     SizedBox(width: 5),
                     Text("Mark as played"),
                   ],
                 ),
-              )
+              ),
+              PopupMenuItem<PopupMenuItemType>(
+                value: PopupMenuItemType.PLAYLIST,
+                child: Row(
+                  children: <Widget>[
+                    Icon(Icons.playlist_add),
+                    SizedBox(width: 5),
+                    Text("Add to playlist"),
+                  ],
+                ),
+              ),
             ],
             context: context,
-          );
+          ).then((type) {
+            switch (type) {
+              case PopupMenuItemType.DONE:
+                saveEpisodeState(
+                  episode.audioUrl,
+                  episode.duration.inSeconds,
+                );
+                break;
+              case PopupMenuItemType.PLAYLIST:
+                showModalBottomSheet(
+                    useRootNavigator: true,
+                    context: context,
+                    builder: (context) {
+                      return PlaylistModal(episode: episode);
+                    });
+                break;
+            }
+          });
         },
         child: ListTile(
           leading: leading == null
@@ -81,13 +97,17 @@ class EpisodeListTile extends StatelessWidget {
               : Tooltip(
                   message:
                       "Open '${shortName(podcasts[episode.podcastUrl].title)}'",
-                  child: InkWell(
-                    onTap: () => Navigator.of(context).push(SharedAxisPageRoute(
-                        page: PodcastOverviewScreen(
-                          feedUrl: podcasts[episode.podcastUrl].url,
-                        ),
-                        transitionType: SharedAxisTransitionType.scaled)),
-                    child: leading,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(6),
+                    child: InkWell(
+                      onTap: () =>
+                          Navigator.of(context).push(SharedAxisPageRoute(
+                              page: PodcastOverviewScreen(
+                                feedUrl: podcasts[episode.podcastUrl].url,
+                              ),
+                              transitionType: SharedAxisTransitionType.scaled)),
+                      child: leading,
+                    ),
                   ),
                 ),
           contentPadding: EdgeInsets.only(
@@ -96,14 +116,19 @@ class EpisodeListTile extends StatelessWidget {
             top: 6, //leading == null ? 6 : 0,
             bottom: 6, //leading == null ? 6 : 0,
           ),
-          title: Text(episode.title == null ? '<NO TITLE>' : episode.title),
+          title: Text(
+            episode.title == null ? '<NO TITLE>' : episode.title,
+            maxLines: 3,
+            overflow: TextOverflow.ellipsis,
+            softWrap: false,
+          ),
           subtitle: Padding(
             padding: const EdgeInsets.only(top: 5),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Text(date),
-                seperatorWidget,
+                SeparatorWidget(),
                 Text(episode.duration == null
                     ? '<NO DURATION>'
                     : '${episode.duration.inMinutes} minutes'),
@@ -111,7 +136,7 @@ class EpisodeListTile extends StatelessWidget {
                     episodeDownloadStates[episode.audioUrl] == 100)
                   Row(
                     children: [
-                      seperatorWidget,
+                      SeparatorWidget(),
                       DownloadIconButton(
                         episodeAudioUrl: episode.audioUrl,
                         showGreaterZeroOnly: true,
@@ -161,6 +186,18 @@ class EpisodeListTile extends StatelessWidget {
       ),
     );
   }
+}
+
+class SeparatorWidget extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 4.5),
+        child: Icon(
+          Icons.brightness_1,
+          color: const Color(0x66000000),
+          size: 5,
+        ),
+      );
 }
 
 void callback(String s, DownloadTaskStatus status, int progress) {
