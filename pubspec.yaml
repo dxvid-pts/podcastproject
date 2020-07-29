@@ -15,7 +15,7 @@ dependencies:
   optimized_cached_image: ^0.1.14
 
   http: ^0.12.2
-  animations: ^1.1.1
+  animations: ^1.1.2
   shared_preferences: ^0.5.8
   audio_service: ^0.11.2
   just_audio: ^0.2.2
