@@ -7,23 +7,27 @@ import 'package:podcast_player/widgets/episode_list_tile.dart';
 class DownloadedEpisodesScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return ListView.builder(
-      itemBuilder: (_, int index) {
-        final indexAudioUrl = episodeDownloadInfo.keys.toList()[index];
+    return ValueListenableBuilder(
+      builder: (_, __, ___) {
+        return ListView.builder(
+          itemBuilder: (_, int index) {
+            final indexAudioUrl = episodeDownloadInfo.keys.toList()[index];
 
-        for (Podcast podcast in podcasts.values)
-          for (String episodeUrl in podcast.episodes)
-            if (episodeUrl == indexAudioUrl)
-              return EpisodeListTile(
-                episode: episodes[episodeUrl],
-                leading: Image(
-                  image: getImageProvider(podcast.img),
-                ),
-              );
+            for (Episode episode in episodes.values)
+              if (episode.audioUrl == indexAudioUrl)
+                return EpisodeListTile(
+                  episode: episode,
+                  leading: Image(
+                    image: getImageProvider(podcasts[episode.podcastUrl].img),
+                  ),
+                );
 
-        return Text(indexAudioUrl);
+            return Text(indexAudioUrl);
+          },
+          itemCount: episodeDownloadInfo.keys.length,
+        );
       },
-      itemCount: episodeDownloadInfo.keys.length,
+      valueListenable: downloadedEpisodes,
     );
   }
 }

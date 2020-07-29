@@ -29,6 +29,13 @@ Map<String, ValueNotifier<int>> episodeDownloadStates = Map();
 //taskId, audioUrl
 Map<String, String> episodeDownloadTasks = Map();
 
+/*
+Used to refresh downloaded_episodes_screen.dart whenever a downloaded episode gets deleted.
+Introducing a new value as ValueNotifier doesn't notify about changes in lists (https://github.com/flutter/flutter/issues/29958)
+and not to depend on third party libraries such as "property_change_notifier"
+ */
+ValueNotifier<int> downloadedEpisodes = ValueNotifier(0);
+
 StreamController<String> updateStream = StreamController<String>.broadcast();
 
 //used to display skeletons in main_screen.dart
