@@ -6,6 +6,7 @@ import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:marquee/marquee.dart';
+import 'package:miniplayer/miniplayer.dart';
 import 'package:path_provider/path_provider.dart';
 
 import 'package:podcast_player/main.dart';
@@ -13,7 +14,6 @@ import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/progress_slider_widget.dart';
 
 import '../analyzer.dart';
-import 'expandable_widget.dart';
 
 ValueNotifier<Episode> currentlyPlaying = ValueNotifier(null);
 ValueNotifier<double> playerExpandProgress = ValueNotifier(0);
@@ -114,7 +114,7 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
         ? Container(
             height: 0,
           )
-        : ExpandableWidget(
+        : Miniplayer(
             minHeight: playerMinHeight,
             maxHeight: playerMaxHeight,
             /*onDragDown: () {
