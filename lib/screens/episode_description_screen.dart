@@ -1,12 +1,12 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
+import 'package:podcast_player/image_handler.dart';
 import 'package:podcast_player/screens/podcast_overview_screen.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/download_icon_widget.dart';
 import 'package:podcast_player/widgets/playlist_modal.dart';
 
-import '../analyzer.dart';
 import '../main.dart';
 import '../shared_axis_page_route.dart';
 
@@ -41,10 +41,9 @@ class EpisodeDescriptionScreen extends StatelessWidget {
                     padding: const EdgeInsets.all(8),
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(4),
-                      child: Image(
+                      child: SizedBox(
                         height: 55,
-                        image: getImageProvider(
-                            podcast.img), //fit: BoxFit.contain,
+                        child: OptimizedImage(url:podcast.img), //fit: BoxFit.contain,
                       ),
                     ),
                   ),

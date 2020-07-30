@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:podcast_player/analyzer.dart';
 import 'package:podcast_player/main.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/episode_list_tile.dart';
@@ -17,9 +16,7 @@ class DownloadedEpisodesScreen extends StatelessWidget {
               if (episode.audioUrl == indexAudioUrl)
                 return EpisodeListTile(
                   episode: episode,
-                  leading: Image(
-                    image: getImageProvider(podcasts[episode.podcastUrl].img),
-                  ),
+                  leading: true,
                 );
 
             return Text(indexAudioUrl);

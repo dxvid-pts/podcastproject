@@ -5,7 +5,7 @@ class Skeleton extends StatefulWidget {
   final double width;
   final double greyscale;
 
-  Skeleton({Key key, this.height = 20, this.width = 200, this.greyscale = 0.05})
+  Skeleton({Key key, this.height, this.width, this.greyscale = 0.05})
       : super(key: key);
 
   createState() => SkeletonState();

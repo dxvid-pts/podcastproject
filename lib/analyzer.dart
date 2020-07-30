@@ -6,7 +6,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 
-import 'package:optimized_cached_image/image_provider/_image_provider_io.dart';
 import 'package:podcast_player/main.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/player.dart';
@@ -59,63 +58,15 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
   }
 
   //refresh Feeds
-  if (skipSharedPreferences)
-    for (String url in keys) {
-      if (url.startsWith('feed:')) url = url.split('feed:')[1];
+  //if (skipSharedPreferences)
+  for (String url in keys) {
+    if (url.startsWith('feed:')) url = url.split('feed:')[1];
 
-      try {
-        podcastFromXml(url, await fetchXml(url));
-      } catch (_) {}
-    }
-}
-
-/*Stream<Podcast> loadPodcastsOldStream(
-    {bool skipSharedPreferences = false}) async* {
-  Set<String> keys;
-  if (!skipSharedPreferences) {
-    if (prefs == null) {
-      prefs = await SharedPreferences.getInstance();
-    }
-
-    //Load current Episode
-    final String currentCachedEpisodeUrl = prefs.getString('current_episode');
-
-    keys = prefs.getKeys()..removeWhere((key) => !key.startsWith('feed:'));
-
-    print('load podcasts: ' + keys.length.toString());
-
-    //loadCached
-    for (String url in keys) {
-      print(url);
-      try {
-        Podcast cached = podcastFromXml(url, prefs.getString(url));
-        print(cached.title);
-
-        //Set current Episode if loaded && != null
-        if (currentCachedEpisodeUrl != null)
-          cached.episodes.forEach((episode) {
-            if (episode.audioUrl == currentCachedEpisodeUrl) {
-              firstEpisodeLoadedFromSP = true;
-              currentlyPlaying.value = episode;
-            }
-          });
-        yield cached;
-      } catch (e) {
-        print('error: $e');
-      }
-    }
-  } else {
-    keys = podcasts.keys.toSet();
+    try {
+      podcastFromXml(url, await fetchXml(url));
+    } catch (_) {}
   }
-
-  //refresh Feeds
-  if (skipSharedPreferences)
-    for (String url in keys) {
-      if (url.startsWith('feed:')) url = url.split('feed:')[1];
-
-      yield podcastFromXml(url, await fetchXml(url));
-    }
-}*/
+}
 
 Future<String> fetchXml(final String url, {final bool ignoreCache}) async {
   if (ignoreCache == false && prefs.containsKey("feed:" + url)) {
@@ -146,7 +97,7 @@ Future<Podcast> podcastFromXml(final String url, final String xml) async {
     if (episodeUrl != null) {
       saveEpisodeState(episodeUrl, prefs.getInt('state:' + episodeUrl) ?? 0,
           save: false);
-      setEpisodeDownloadState(episodeUrl, 0,replace: false);
+      setEpisodeDownloadState(episodeUrl, 0, replace: false);
     }
   });
 
@@ -582,32 +533,5 @@ void setEpisodeDownloadState(final String audioUrl, final int progress,
     {final bool replace = true}) {
   if (!episodeDownloadStates.containsKey(audioUrl))
     episodeDownloadStates.putIfAbsent(audioUrl, () => ValueNotifier(progress));
-  else if(replace)
-    episodeDownloadStates[audioUrl].value = progress;
+  else if (replace) episodeDownloadStates[audioUrl].value = progress;
 }
-
-Map<String, ImageProvider> imageProviders = Map();
-
-ImageProvider getImageProvider(final String url) {
-  if (imageProviders.containsKey(url))
-    return imageProviders[url];
-  else {
-    print('load image');
-    //var img = CachedNetworkImageProvider(url);
-    var img = OptimizedCacheImageProvider(url, cacheWidth: 1, cacheHeight: 1);
-    //var img = sumStream(CachedNetworkImageProvider(url).load(key, (bytes, {cacheHeight, cacheWidth}) => null).addListener(listener));
-    imageProviders.putIfAbsent(url, () => img);
-
-    return img;
-  }
-}
-/*
-Future<List<ImageStreamCompleter>> sumStream(
-    ImageStreamCompleter stream) async {
-  List<ImageStreamCompleter> list = List();
-  await for (var value in stream) {
-    list.add(value);
-  }
-  return list;
-}
-*/

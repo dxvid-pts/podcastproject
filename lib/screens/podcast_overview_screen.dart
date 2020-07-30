@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:podcast_player/image_handler.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/episode_list_tile.dart';
 
@@ -48,9 +49,9 @@ class _PodcastOverviewScreenState extends State<PodcastOverviewScreen> {
           children: [
             Padding(
               padding: const EdgeInsets.only(right: 8),
-              child: Image(
+              child: SizedBox(
                 height: 38,
-                image: getImageProvider(podcast.img), //fit: BoxFit.contain,
+                child: OptimizedImage(url: podcast.img), //fit: BoxFit.contain,
               ),
             ),
             Expanded(
@@ -179,7 +180,7 @@ class PodcastHeaderWidget extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 1),
                         child: Text(author),
                       ),
-                      if (link != null)
+                      if (link != null && displayUrl != null)
                         Tooltip(
                           message: 'Open $displayUrl',
                           child: InkWell(
@@ -209,9 +210,9 @@ class PodcastHeaderWidget extends StatelessWidget {
                 padding: const EdgeInsets.only(left: 3),
                 child: Hero(
                   tag: url,
-                  child: Image(
-                    image: getImageProvider(image),
+                  child: SizedBox(
                     height: 110,
+                    child: OptimizedImage(url: image),
                   ),
                 ),
               ),

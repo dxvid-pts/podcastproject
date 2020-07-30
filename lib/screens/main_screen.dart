@@ -52,8 +52,8 @@ class MainScreen extends StatelessWidget {
                 children: <Widget>[
                   ...podcasts.values
                       .map((p) => PodcastListTile(
-                    podcast: p,
-                  ))
+                            podcast: p,
+                          ))
                       .toList(),
                   Tooltip(
                     message: 'Add Podcast',
@@ -71,8 +71,10 @@ class MainScreen extends StatelessWidget {
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                          builder: (context) => LoadPodcastScreen(
-                                              podcastFuture: podcastFromUrl(url))),
+                                          builder: (context) =>
+                                              LoadPodcastScreen(
+                                                  podcastFuture:
+                                                      podcastFromUrl(url))),
                                     );
                                   },
                                 );
@@ -94,12 +96,10 @@ class MainScreen extends StatelessWidget {
               for (Episode e in episodes.values
                   .where((episode) => episode.date != null)
                   .toList()
-                ..sort((a, b) => b.date.compareTo(a.date)))
+                    ..sort((a, b) => b.date.compareTo(a.date)))
                 EpisodeListTile(
                   episode: e,
-                  leading: Image(
-                    image: getImageProvider(podcasts[e.podcastUrl].img),
-                  ),
+                  leading: true,
                 ),
             ];
             return RefreshIndicator(
@@ -107,10 +107,10 @@ class MainScreen extends StatelessWidget {
                 await loadPodcasts(skipSharedPreferences: true);
               },
               child: ListView.builder(
-                  itemCount: widgets.length,
-                  itemBuilder: (_, int index) {
-                    return widgets[index];
-                  },
+                itemCount: widgets.length,
+                itemBuilder: (_, int index) {
+                  return widgets[index];
+                },
               ),
             );
           }),

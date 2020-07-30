@@ -67,9 +67,7 @@ class HistoryDividedPart extends StatelessWidget {
         for (Episode e in episodes.where((element) => element != null))
           EpisodeListTile(
             episode: e,
-            leading: Image(
-              image: getImageProvider(podcasts[e.podcastUrl].img),
-            ),
+            leading:true,
           ),
       ],
     );

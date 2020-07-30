@@ -8,6 +8,7 @@ import 'package:just_audio/just_audio.dart';
 import 'package:marquee/marquee.dart';
 import 'package:miniplayer/miniplayer.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:podcast_player/image_handler.dart';
 
 import 'package:podcast_player/main.dart';
 import 'package:podcast_player/utils.dart';
@@ -130,10 +131,7 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
               final maxImgSize = width * 0.4;
 
               //final img = Image.network(podcasts[currentEpisode.podcastUrl].img);
-              final img = Image(
-                image:
-                    getImageProvider(podcasts[currentEpisode.podcastUrl].img),
-              );
+              final img = OptimizedImage(url: podcasts[currentEpisode.podcastUrl].img);
               final text = Text(currentEpisode.title);
               final buttonPlay = isPlaying == null
                   ? Container()
@@ -290,7 +288,7 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                   ),
                 );
               }
-              //Mniplayer
+              //Miniplayer
               final percentageMiniplayer = percentageFromValueInRange(
                   min: playerMinHeight,
                   max: playerMaxHeight * miniplayerPercentage + playerMinHeight,

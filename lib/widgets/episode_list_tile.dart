@@ -1,5 +1,6 @@
 import 'package:animations/animations.dart';
 import 'package:flutter/material.dart';
+import 'package:podcast_player/image_handler.dart';
 import 'package:podcast_player/screens/episode_description_screen.dart';
 import 'package:podcast_player/screens/podcast_overview_screen.dart';
 import 'package:podcast_player/utils.dart';
@@ -18,7 +19,7 @@ enum PopupMenuItemType { DONE, PLAYLIST }
 
 class EpisodeListTile extends StatelessWidget {
   final Episode episode;
-  final Widget leading;
+  final bool leading;
 
   const EpisodeListTile({Key key, @required this.episode, this.leading})
       : super(key: key);
@@ -84,14 +85,15 @@ class EpisodeListTile extends StatelessWidget {
                       "Open '${shortName(podcasts[episode.podcastUrl].title)}'",
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(6),
-                    child: InkWell(
-                      onTap: () =>
-                          Navigator.of(context).push(SharedAxisPageRoute(
+                    child: OptimizedImage(
+                      url: podcasts[episode.podcastUrl].img,
+                      onTap: () => Navigator.of(context).push(
+                          SharedAxisPageRoute(
                               page: PodcastOverviewScreen(
                                 feedUrl: podcasts[episode.podcastUrl].url,
                               ),
-                              transitionType: SharedAxisTransitionType.scaled)),
-                      child: leading,
+                              transitionType:
+                                  SharedAxisTransitionType.scaled)),
                     ),
                   ),
                 ),
