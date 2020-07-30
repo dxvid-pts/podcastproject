@@ -5,7 +5,6 @@ import 'package:podcast_player/screens/playlist_overview_screen.dart';
 import 'package:podcast_player/screens/settings_screen.dart';
 
 import '../podcast_icons_icons.dart';
-import 'cast_test_screen_remove.dart';
 
 class LibraryScreen extends StatelessWidget {
   @override
@@ -16,17 +15,6 @@ class LibraryScreen extends StatelessWidget {
         appBar: AppBar(
           title: Text('Podcasts'),
           actions: [
-            IconButton(
-              tooltip: 'Cast',
-              icon: Icon(Icons.cast),
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => CastTestScreenRemove()),
-                );
-              },
-            ),
             IconButton(
               tooltip: 'Settings',
               icon: Icon(PodcastIcons.vector),

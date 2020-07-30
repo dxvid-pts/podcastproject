@@ -4,7 +4,6 @@ import 'package:podcast_player/widgets/episode_list_tile.dart';
 import 'package:podcast_player/widgets/text_dialog_widget.dart';
 import '../analyzer.dart';
 import '../podcast_icons_icons.dart';
-import 'cast_test_screen_remove.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/podcast_list_tile.dart';
 
@@ -18,20 +17,6 @@ class MainScreen extends StatelessWidget {
       appBar: AppBar(
         title: Text('Podcasts'),
         actions: [
-          IconButton(
-            tooltip: 'Cast',
-            icon: Icon(Icons.cast),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (context) => CastTestScreenRemove()),
-              );
-            },
-          ),
-          /*  IconButton(
-            icon: Icon(Icons.add_circle_outline),
-            onPressed: () {},
-          ),*/
           IconButton(
             tooltip: 'Settings',
             icon: Icon(PodcastIcons.vector),

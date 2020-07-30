@@ -13,8 +13,6 @@ dependencies:
     sdk: flutter
 
   optimized_cached_image: ^0.1.14
-
-  http: ^0.12.2
   animations: ^1.1.2
   shared_preferences: ^0.5.8
   audio_service: ^0.11.2
@@ -22,15 +20,9 @@ dependencies:
   cached_network_image: ^2.2.0+1
   positioned_tap_detector: ^1.0.3
   flutter_html: ^1.0.0
-  dlna: ^0.0.5
-  connectivity: ^0.4.9
-  multicast_dns: ^0.2.2
   marquee: ^1.5.2
   flutter_custom_tabs: ^0.6.0
-  #permission_handler: ^5.0.1+1
-  path_provider: ^1.6.11
   flutter_downloader: ^1.4.4
-  google_fonts: ^1.1.0
   miniplayer: ^0.1.0
   #TODO: https://pub.dev/packages/quick_actions
 
