@@ -131,7 +131,8 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
               final maxImgSize = width * 0.4;
 
               //final img = Image.network(podcasts[currentEpisode.podcastUrl].img);
-              final img = OptimizedImage(url: podcasts[currentEpisode.podcastUrl].img);
+              final img =
+                  OptimizedImage(url: podcasts[currentEpisode.podcastUrl].img);
               final text = Text(currentEpisode.title);
               final buttonPlay = isPlaying == null
                   ? Container()
@@ -195,18 +196,22 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                     AudioService.rewind();
                   },
                 );
-                final buttonPlayExpanded = IconButton(
-                  icon: Icon(isPlaying
-                      ? Icons.pause_circle_filled
-                      : Icons.play_circle_filled),
-                  iconSize: 50,
-                  onPressed: () {
-                    isPlaying ? AudioService.pause() : AudioService.play();
-                    setState(() {
-                      isPlaying = !isPlaying;
-                    });
-                  },
-                );
+                final buttonPlayExpanded = isPlaying == null
+                    ? Container()
+                    : IconButton(
+                        icon: Icon(isPlaying
+                            ? Icons.pause_circle_filled
+                            : Icons.play_circle_filled),
+                        iconSize: 50,
+                        onPressed: () {
+                          isPlaying
+                              ? AudioService.pause()
+                              : AudioService.play();
+                          setState(() {
+                            isPlaying = !isPlaying;
+                          });
+                        },
+                      );
 
                 return Container(
                   decoration: new BoxDecoration(
@@ -226,7 +231,10 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                                 left: paddingLeft,
                                 top: paddingVertical,
                                 bottom: paddingVertical),
-                            child: SizedBox(height: imageSize, child: img),
+                            child: SizedBox(
+                              height: imageSize,
+                              child: img,
+                            ),
                           ),
                         ),
                         Expanded(
@@ -345,6 +353,8 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                                       Text(
                                         podcasts[currentEpisode.podcastUrl]
                                             .title,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
                                         style: Theme.of(context)
                                             .textTheme
                                             .bodyText2

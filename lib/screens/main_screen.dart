@@ -12,6 +12,10 @@ import '../main.dart';
 import 'load_podcast_overview_screen.dart';
 
 class MainScreen extends StatelessWidget {
+  final ScrollController controller;
+
+  const MainScreen({Key key, this.controller}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -110,6 +114,7 @@ class MainScreen extends StatelessWidget {
                 await loadPodcasts(skipSharedPreferences: true);
               },
               child: ListView.builder(
+                controller: controller,
                 itemCount: widgets.length,
                 itemBuilder: (_, int index) {
                   return widgets[index];

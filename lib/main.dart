@@ -10,8 +10,6 @@ import 'package:podcast_player/screens/main_screen.dart';
 import 'package:podcast_player/screens/library_screen.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/navigator_page_widget.dart';
-
-import 'package:podcast_player/widgets/navigator_widget.dart';
 import 'package:podcast_player/widgets/player.dart';
 
 import 'analyzer.dart';
@@ -31,11 +29,9 @@ Map<String, ValueNotifier<int>> episodeDownloadStates = Map();
 //taskId, audioUrl
 Map<String, String> episodeDownloadTasks = Map();
 
-/*
-Used to refresh downloaded_episodes_screen.dart whenever a downloaded episode gets deleted.
-Introducing a new value as ValueNotifier doesn't notify about changes in lists (https://github.com/flutter/flutter/issues/29958)
-and not to depend on third party libraries such as "property_change_notifier"
- */
+//Used to refresh downloaded_episodes_screen.dart whenever a downloaded episode gets deleted.
+//Introducing a new value as ValueNotifier doesn't notify about changes in lists (https://github.com/flutter/flutter/issues/29958)
+//and not to depend on third party libraries such as "property_change_notifier"
 ValueNotifier<int> downloadedEpisodes = ValueNotifier(0);
 
 StreamController<String> updateStream = StreamController<String>.broadcast();
@@ -74,9 +70,6 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         primaryColor: Colors.white,
         accentColor: Colors.white,
-        /*textTheme: GoogleFonts.latoTextTheme(
-          Theme.of(context).textTheme,
-        ),*/
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: App(),
@@ -91,13 +84,9 @@ class App extends StatefulWidget {
   _AppState createState() => _AppState();
 }
 
-List<Widget> pageList = <Widget>[
-  MainScreen(),
-  SecondScreen(),
-];
-
 class _AppState extends State<App> {
   int _selectedIndex = 0;
+  final ScrollController mainScreenController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -118,16 +107,15 @@ class _AppState extends State<App> {
               padding: const EdgeInsets.only(/*bottom: miniplayerHeight*/),
               child: IndexedStack(
                 index: _selectedIndex,
-                children: /*const*/ <Widget>[
+                children: <Widget>[
                   NavigatorPage(
                     navigatorKey: _navigatorKeys[0],
-                    child: MainScreen(),
+                    child: MainScreen(controller: mainScreenController),
                   ),
                   NavigatorPage(
                     navigatorKey: _navigatorKeys[1],
                     child: LibraryScreen(),
                   ),
-                  Container(),
                 ],
               ),
             ),
@@ -137,24 +125,6 @@ class _AppState extends State<App> {
           ],
         ),
         bottomNavigationBar: ValueListenableBuilder(
-          builder: (BuildContext context, double value, Widget child) {
-            if (value == null) return child;
-            var opacity = 1 - value;
-            if (opacity < 0) opacity = 0;
-            if (opacity > 1) opacity = 1;
-
-            return SizedBox(
-              height: kBottomNavigationBarHeight -
-                  kBottomNavigationBarHeight * value,
-              child: Transform.translate(
-                offset: Offset(0.0, kBottomNavigationBarHeight * value * 0.5),
-                child: Opacity(
-                  opacity: opacity,
-                  child: child,
-                ),
-              ),
-            );
-          },
           valueListenable: playerExpandProgress,
           child: BottomNavigationBar(
             items: <BottomNavigationBarItem>[
@@ -179,13 +149,40 @@ class _AppState extends State<App> {
               if (index == _selectedIndex) {
                 final NavigatorState navigator =
                     _navigatorKeys[index].currentState;
-                while (navigator.canPop()) navigator.pop();
+                if (navigator.canPop())
+                  while (navigator.canPop()) navigator.pop();
+                else {
+                  if (index == 0)
+                    mainScreenController.animateTo(
+                      0,
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeIn,
+                    );
+                }
               } else
                 setState(() {
                   _selectedIndex = index;
                 });
             },
           ),
+          builder: (BuildContext context, double value, Widget child) {
+            if (value == null) return child;
+            var opacity = 1 - value;
+            if (opacity < 0) opacity = 0;
+            if (opacity > 1) opacity = 1;
+
+            return SizedBox(
+              height: kBottomNavigationBarHeight -
+                  kBottomNavigationBarHeight * value,
+              child: Transform.translate(
+                offset: Offset(0.0, kBottomNavigationBarHeight * value * 0.5),
+                child: Opacity(
+                  opacity: opacity,
+                  child: child,
+                ),
+              ),
+            );
+          },
         ),
       ),
     );

@@ -12,8 +12,13 @@ import '../shared_axis_page_route.dart';
 
 class EpisodeDescriptionScreen extends StatelessWidget {
   final Episode episode;
+  final bool popBack;
 
-  const EpisodeDescriptionScreen({Key key, this.episode}) : super(key: key);
+  const EpisodeDescriptionScreen({
+    Key key,
+    this.episode,
+    this.popBack = false,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -27,11 +32,12 @@ class EpisodeDescriptionScreen extends StatelessWidget {
         children: [
           InkWell(
             onTap: () {
-              Navigator.of(context).push(SharedAxisPageRoute(
-                  page: PodcastOverviewScreen(
-                    feedUrl: podcast.url,
-                  ),
-                  transitionType: SharedAxisTransitionType.scaled));
+              if (popBack)
+                Navigator.of(context).pop();
+              else
+                Navigator.of(context).push(SharedAxisPageRoute(
+                    page: PodcastOverviewScreen(feedUrl: podcast.url),
+                    transitionType: SharedAxisTransitionType.horizontal));
             },
             child: Padding(
               padding: const EdgeInsets.all(3),
@@ -43,7 +49,9 @@ class EpisodeDescriptionScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(4),
                       child: SizedBox(
                         height: 55,
-                        child: OptimizedImage(url:podcast.img), //fit: BoxFit.contain,
+                        child: OptimizedImage(
+                          url: podcast.img,
+                        ), //fit: BoxFit.contain,
                       ),
                     ),
                   ),
@@ -109,6 +117,7 @@ class PlayPause extends StatefulWidget {
   @override
   _PlayPauseState createState() => _PlayPauseState();
 }
+
 //TODO: FIX Functionality
 class _PlayPauseState extends State<PlayPause> {
   bool isPlaying = false;

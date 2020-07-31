@@ -176,7 +176,12 @@ class PodcastHeaderWidget extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.max,
                     children: [
-                      Text(title, style: Theme.of(context).textTheme.headline6),
+                      Text(
+                        title,
+                        style: Theme.of(context).textTheme.headline6,
+                        maxLines: 3,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 1),
                         child: Text(author),

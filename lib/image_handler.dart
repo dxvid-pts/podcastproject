@@ -29,7 +29,7 @@ class OptimizedImage extends StatelessWidget {
         return Container(
           height: defaultImageSize,
           width: defaultImageSize,
-          child: Ink.image(
+          child: Ink.image(fit: BoxFit.cover,
             image: MemoryImage(_ram[url]),
             child: InkWell(
               onTap: onTap,

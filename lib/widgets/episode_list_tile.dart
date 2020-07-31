@@ -21,7 +21,7 @@ class EpisodeListTile extends StatelessWidget {
   final Episode episode;
   final bool leading;
 
-  const EpisodeListTile({Key key, @required this.episode, this.leading})
+  const EpisodeListTile({Key key, @required this.episode, this.leading = false})
       : super(key: key);
 
   @override
@@ -78,25 +78,27 @@ class EpisodeListTile extends StatelessWidget {
           });
         },
         child: ListTile(
-          leading: leading == null
-              ? null
-              : Tooltip(
+          leading: leading
+              ? Tooltip(
                   message:
                       "Open '${shortName(podcasts[episode.podcastUrl].title)}'",
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(6),
+                  child: Card(
+                    margin: const EdgeInsets.all(0),
+                    semanticContainer: true,
+                    clipBehavior: Clip.antiAliasWithSaveLayer,
+                    elevation: 1,
                     child: OptimizedImage(
                       url: podcasts[episode.podcastUrl].img,
-                      onTap: () => Navigator.of(context).push(
-                          SharedAxisPageRoute(
+                      onTap: () =>
+                          Navigator.of(context).push(SharedAxisPageRoute(
                               page: PodcastOverviewScreen(
                                 feedUrl: podcasts[episode.podcastUrl].url,
                               ),
-                              transitionType:
-                                  SharedAxisTransitionType.scaled)),
+                              transitionType: SharedAxisTransitionType.scaled)),
                     ),
                   ),
-                ),
+                )
+              : null,
           contentPadding: EdgeInsets.only(
             left: leading == null ? 22 : 12,
             right: 22,
@@ -165,7 +167,10 @@ class EpisodeListTile extends StatelessWidget {
                 ),
           onTap: () {
             Navigator.of(context).push(SharedAxisPageRoute(
-                page: EpisodeDescriptionScreen(episode: episode),
+                page: EpisodeDescriptionScreen(
+                  episode: episode,
+                  popBack: !leading,
+                ),
                 transitionType: SharedAxisTransitionType.horizontal));
           },
         ),
