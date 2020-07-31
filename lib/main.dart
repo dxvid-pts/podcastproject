@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:podcast_player/screens/main_screen.dart';
 import 'package:podcast_player/screens/library_screen.dart';
 import 'package:podcast_player/utils.dart';
@@ -51,7 +53,10 @@ final List<GlobalKey<NavigatorState>> _navigatorKeys = [
 //const int imageSize = 200;
 
 void main() {
-  //updateStream = loadPodcasts().asBroadcastStream();
+  LicenseRegistry.addLicense(() async* {
+    final license = await rootBundle.loadString('assets/google_fonts/OFL.txt');
+    yield LicenseEntryWithLineBreaks(['google_fonts'], license);
+  });
 
   runApp(MyApp());
 
@@ -152,14 +157,20 @@ class _AppState extends State<App> {
           },
           valueListenable: playerExpandProgress,
           child: BottomNavigationBar(
-            items: const <BottomNavigationBarItem>[
+            items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
                 icon: Icon(Icons.home),
-                title: Text('Feed'),
+                title: Text(
+                  'Feed',
+                  style: GoogleFonts.lexendDeca(),
+                ),
               ),
               BottomNavigationBarItem(
                 icon: Icon(Icons.library_books),
-                title: Text('Library'),
+                title: Text(
+                  'Library',
+                  style: GoogleFonts.lexendDeca(),
+                ),
               ),
             ],
             currentIndex: _selectedIndex,

@@ -617,6 +617,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
     currentlyPlaying.value = null;
     _eventSubscription.cancel();
+    _playerStateSubscription.cancel();
 
     _cancelUpdateRefresh = true;
     /*if (notificationRefreshStreamSubscription != null)

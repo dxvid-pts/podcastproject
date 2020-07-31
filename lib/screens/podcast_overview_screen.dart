@@ -1,6 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:podcast_player/image_handler.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/episode_list_tile.dart';
@@ -190,7 +191,10 @@ class PodcastHeaderWidget extends StatelessWidget {
                               children: [
                                 Text(
                                   displayUrl,
-                                  style: TextStyle(color: Colors.blue),
+                                  style: GoogleFonts.lexendDeca(
+                                    color: Colors.blue,
+                                    fontSize: 13.4,
+                                  ),
                                 ),
                                 SizedBox(width: 4),
                                 Icon(
@@ -207,7 +211,7 @@ class PodcastHeaderWidget extends StatelessWidget {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.only(left: 3),
+                padding: const EdgeInsets.only(left: 7),
                 child: Hero(
                   tag: url,
                   child: SizedBox(

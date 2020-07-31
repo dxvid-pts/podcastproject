@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:podcast_player/screens/settings_screen.dart';
 import 'package:podcast_player/widgets/episode_list_tile.dart';
 import 'package:podcast_player/widgets/text_dialog_widget.dart';
@@ -88,11 +89,13 @@ class MainScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              Align(
-                  alignment: Alignment.centerLeft,
-                  child: Tab(
-                    text: 'New episodes',
-                  )),
+              Padding(
+                padding: const EdgeInsets.only(left: 10, bottom: 6, top: 13),
+                child: Text(
+                  'New Episodes:',
+                  style: GoogleFonts.lexendDeca(fontSize: 14.4),
+                ),
+              ),
               for (Episode e in episodes.values
                   .where((episode) => episode.date != null)
                   .toList()
