@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:podcast_player/screens/downloaded_episodes_screen.dart';
-import 'package:podcast_player/screens/history_screen.dart';
-import 'package:podcast_player/screens/playlist_overview_screen.dart';
+import 'file:///C:/Users/David/IdeaProjects/podcast_player/lib/screens/library_screen/downloaded_episodes_screen.dart';
+import 'file:///C:/Users/David/IdeaProjects/podcast_player/lib/screens/library_screen/history_screen.dart';
+import 'file:///C:/Users/David/IdeaProjects/podcast_player/lib/screens/library_screen/playlist_overview_screen.dart';
 import 'package:podcast_player/screens/settings_screen.dart';
 
-import '../podcast_icons_icons.dart';
+import '../../podcast_icons_icons.dart';
 
 class LibraryScreen extends StatelessWidget {
   @override

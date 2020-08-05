@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:podcast_player/screens/main_screen.dart';
-import 'package:podcast_player/screens/library_screen.dart';
+import 'package:podcast_player/screens/library_screen/library_screen.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/navigator_page_widget.dart';
 import 'package:podcast_player/widgets/player.dart';
