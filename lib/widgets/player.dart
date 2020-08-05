@@ -16,9 +16,8 @@ import 'package:podcast_player/widgets/progress_slider_widget.dart';
 
 import '../analyzer.dart';
 
-ValueNotifier<Episode> currentlyPlaying = ValueNotifier(null);
-ValueNotifier<double> playerExpandProgress = ValueNotifier(0);
-//Episode currentlyPlaying;
+final ValueNotifier<Episode> currentlyPlaying = ValueNotifier(null);
+final ValueNotifier<double> playerExpandProgress = ValueNotifier(playerMinHeight);
 
 const double playerMinHeight = 70;
 const double playerMaxHeight = 370;
@@ -118,14 +117,12 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
         : Miniplayer(
             minHeight: playerMinHeight,
             maxHeight: playerMaxHeight,
+            valueNotifier: playerExpandProgress,
             /*onDragDown: () {
               currentlyPlaying.value = null;
               AudioService.stop();
             },*/
             builder: (height, percentage) {
-              Future.delayed(Duration(seconds: 0))
-                  .then((value) => playerExpandProgress.value = percentage);
-
               final bool miniplayer = percentage < miniplayerPercentage;
               final double width = MediaQuery.of(context).size.width;
               final maxImgSize = width * 0.4;

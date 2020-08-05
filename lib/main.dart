@@ -165,7 +165,10 @@ class _AppState extends State<App> {
                 });
             },
           ),
-          builder: (BuildContext context, double value, Widget child) {
+          builder: (BuildContext context, double height, Widget child) {
+            final value = percentageFromValueInRange(
+                min: playerMinHeight, max: playerMaxHeight, value: height);
+
             if (value == null) return child;
             var opacity = 1 - value;
             if (opacity < 0) opacity = 0;
