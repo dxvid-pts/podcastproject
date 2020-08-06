@@ -77,7 +77,7 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                       : null,
             },
           ));
-          saveHistory(currentEpisode);
+          addToHistory(currentEpisode.audioUrl);
         });
       }
     });
@@ -427,7 +427,7 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
       },
       androidEnableQueue: true,
     );
-    saveHistory(currentEpisode);
+    addToHistory(currentEpisode.audioUrl);
     firstEpisodeLoadedFromSP = false;
   }
 }

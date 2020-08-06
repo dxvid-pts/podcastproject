@@ -5,7 +5,7 @@ import 'package:podcast_player/screens/playlist_screen.dart';
 class PlaylistOverviewScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    var list = listPlaylists();
+    final list = listPlaylists();
 
     return list.isEmpty
         ? Center(
@@ -13,7 +13,7 @@ class PlaylistOverviewScreen extends StatelessWidget {
           )
         : ListView(
             children: [
-              for (String playlistName in listPlaylists())
+              for (String playlistName in list)
                 ListTile(
                   title: Text(playlistName),
                   onTap: () {

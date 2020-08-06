@@ -1,59 +1,65 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:podcast_player/analyzer.dart';
 import 'package:podcast_player/main.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/episode_list_tile.dart';
 
-class HistoryScreen extends StatelessWidget {
+class HistoryScreen extends StatefulWidget {
+  @override
+  _HistoryScreenState createState() => _HistoryScreenState();
+}
+
+class _HistoryScreenState extends State<HistoryScreen> {
+  StreamSubscription<String> listener;
+
+  @override
+  void initState() {
+    listener = updateStream.stream.listen((_) {
+      setState(() {});
+    });
+    historyNotifier.addListener(() {
+      setState(() {});
+    });
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    listener.cancel();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-      future: getHistory(),
-      builder: (BuildContext context, AsyncSnapshot<List<History>> snapshot) {
-        if (snapshot.hasData) {
-          Map<String, List<Episode>> daysWithEpisodes = Map();
+    final history = getHistory();
+    final sortedKeys = history.keys.toList()..sort((a, b) => b.compareTo(a));
 
-          snapshot.data.forEach((history) {
-            try {
-              Episode episode = episodes[history.episodeAudioUrl];
-
-              final datetimeString = dateTimeToDayString(history.dateTime);
-
-              if (daysWithEpisodes.containsKey(datetimeString))
-                daysWithEpisodes.update(
-                  datetimeString,
-                  (list) => list..add(episode),
-                );
-              else
-                daysWithEpisodes.putIfAbsent(datetimeString, () => [episode]);
-            } catch (e) {
-              print(e);
-            }
-          });
-
-          return ListView.builder(
+    return history.isEmpty
+        ? Center(
+            child: Text('No History yet'),
+          )
+        : ListView.builder(
             itemBuilder: (_, int index) {
-              final key = daysWithEpisodes.keys.toList()[index];
+              final key = sortedKeys[index];
 
               return HistoryDividedPart(
-                episodes: daysWithEpisodes[key],
-                dateTime: key.split('-'),
+                eps: history[key],
+                dateTime: dateTimeToDayString(key, alwaysIncludeYear: true),
               );
             },
-            itemCount: daysWithEpisodes.keys.length,
+            itemCount: sortedKeys.length,
           );
-        } else
-          return Center(child: CircularProgressIndicator());
-      },
-    );
   }
 }
 
 class HistoryDividedPart extends StatelessWidget {
-  final List<Episode> episodes;
-  final List<String> dateTime;
+  final List<String> eps;
+  final String dateTime;
 
-  const HistoryDividedPart({Key key, this.episodes, this.dateTime})
+  const HistoryDividedPart({Key key, this.eps, this.dateTime})
       : super(key: key);
 
   @override
@@ -61,19 +67,22 @@ class HistoryDividedPart extends StatelessWidget {
     print(episodes.toString());
     return Column(
       children: [
-        Divider(),
-        Text(dateTime.toString()),
-        Divider(),
-        for (Episode e in episodes.where((element) => element != null))
+        //Divider(),
+        Padding(
+          padding: const EdgeInsets.only(bottom: 6, top: 13),
+          child: Text(
+            dateTime,
+            style: GoogleFonts.lexendDeca(fontSize: 14.4),
+          ),
+        ),
+        //Divider(),
+        for (Episode e
+            in eps.map((e) => episodes[e]).where((element) => element != null))
           EpisodeListTile(
             episode: e,
-            leading:true,
+            leading: true,
           ),
       ],
     );
   }
-}
-
-String dateTimeToDayString(final DateTime d) {
-  return '${d.day}-${d.month}-${d.year}';
 }

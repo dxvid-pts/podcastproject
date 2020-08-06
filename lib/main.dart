@@ -32,7 +32,8 @@ Map<String, String> episodeDownloadTasks = Map();
 //Used to refresh downloaded_episodes_screen.dart whenever a downloaded episode gets deleted.
 //Introducing a new value as ValueNotifier doesn't notify about changes in lists (https://github.com/flutter/flutter/issues/29958)
 //and not to depend on third party libraries such as "property_change_notifier"
-ValueNotifier<int> downloadedEpisodes = ValueNotifier(0);
+ValueNotifier<int> downloadNotifier = ValueNotifier(0);
+ValueNotifier<int> historyNotifier = ValueNotifier(0);
 
 StreamController<String> updateStream = StreamController<String>.broadcast();
 
@@ -45,8 +46,6 @@ final List<GlobalKey<NavigatorState>> _navigatorKeys = [
   GlobalKey(),
   GlobalKey()
 ];
-
-//const int imageSize = 200;
 
 void main() {
   LicenseRegistry.addLicense(() async* {

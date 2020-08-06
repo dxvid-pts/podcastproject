@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -23,11 +25,12 @@ class PodcastOverviewScreen extends StatefulWidget {
 
 class _PodcastOverviewScreenState extends State<PodcastOverviewScreen> {
   Podcast podcast;
+  StreamSubscription<String> listener;
 
   @override
   void initState() {
     podcast = podcasts[widget.feedUrl];
-    updateStream.stream.listen((_podcastUrl) {
+    listener = updateStream.stream.listen((_podcastUrl) {
       if (_podcastUrl == widget.feedUrl) {
         setState(() {
           podcast = podcasts[_podcastUrl];
@@ -39,6 +42,12 @@ class _PodcastOverviewScreenState extends State<PodcastOverviewScreen> {
     });
 
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    listener.cancel();
+    super.dispose();
   }
 
   @override

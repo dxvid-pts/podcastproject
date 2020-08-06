@@ -370,40 +370,58 @@ void unsubscribePodcast(String url) {
 
 const String splitForm = '#;#';
 
-void saveHistory(Episode episode) {
-  final datetime = DateTime.now();
-  final String key = 'history:${episode.audioUrl}',
-      value = '${episode.podcastUrl}$splitForm${datetime.toIso8601String()}';
-  prefs.setString(key, value);
-  cachedHistory.add(History(episode.podcastUrl, episode.audioUrl, datetime));
+void addToHistory(String episodeAudioUrl,
+    {skipSharedPreferences = false, DateTime datetime}) {
+  if (datetime == null) datetime = dayToday();
+
+  if (!skipSharedPreferences) {
+    final String key = 'history:$episodeAudioUrl',
+        value = datetime.toIso8601String();
+    prefs.setString(key, value);
+
+    //Notify history_screen to update
+    historyNotifier.value = historyNotifier.value + 1;
+  }
+
+  if (history.containsKey(datetime))
+    history.update(
+      datetime,
+      (list) => list..add(episodeAudioUrl),
+    );
+  else
+    history.putIfAbsent(datetime, () => [episodeAudioUrl]);
 }
 
-List<History> loadHistory() {
-  List<History> list = List();
+void loadHistory() {
+  if (prefs == null) return;
+
+  if (history == null) history = Map();
+
   final keys = prefs.getKeys()
     ..removeWhere((key) => !key.startsWith('history:'));
+
   for (String key in keys) {
     final episodeAudioUrl = key.replaceFirst('history:', '');
-    final value = prefs.getString(key).split(splitForm);
-    final podcastUrl = value[0];
-    final DateTime dateTime = DateTime.parse(value[1]);
+    //TODO: final
+    var date = prefs.getString(key);
 
-    list.add(History(podcastUrl, episodeAudioUrl, dateTime));
+    //TODO: remove
+    if (date.contains(splitForm)) date = date.split(splitForm)[1];
+    //TODO: end result: final DateTime dateTime = DateTime.parse(date);
+    final DateTime ram = DateTime.parse(date);
+    final DateTime dateTime = DateTime(ram.year, ram.month, ram.day);
+
+    addToHistory(episodeAudioUrl,
+        skipSharedPreferences: true, datetime: dateTime);
   }
-  cachedHistory = list.toSet();
-  return list;
 }
 
-Set<History> cachedHistory = Set();
+Map<DateTime, List<String>> history;
 
-Future<List<History>> getHistory() async {
-  List<History> sortedHistoryList;
-  if (cachedHistory.isNotEmpty)
-    sortedHistoryList = cachedHistory.toList();
-  else
-    sortedHistoryList = loadHistory();
+Map<DateTime, List<String>> getHistory() {
+  if (history == null) loadHistory();
 
-  return sortedHistoryList..sort((a, b) => b.dateTime.compareTo(a.dateTime));
+  return history;
 }
 
 Map<String, List<Episode>> playlists = Map();

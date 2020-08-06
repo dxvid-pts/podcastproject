@@ -24,7 +24,7 @@ class DownloadedEpisodesScreen extends StatelessWidget {
           itemCount: episodeDownloadInfo.keys.length,
         );
       },
-      valueListenable: downloadedEpisodes,
+      valueListenable: downloadNotifier,
     );
   }
 }

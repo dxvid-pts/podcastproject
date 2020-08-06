@@ -23,13 +23,9 @@ class Episode {
         dateString = '${diff.inHours} hour${diff.inHours > 1 ? 's' : ''} ago';
       else if (diff.inDays <= 7)
         dateString = '${diff.inDays} day${diff.inDays > 1 ? 's' : ''} ago';
-      else {
-        dateString = '${date.day} ${intToMonth(date.month)}';
-
-        if (date.year != now.year) dateString = '$dateString ${date.year}';
-      }
+      else
+        dateString = dateTimeToDayString(date);
     }
-
     return dateString;
   }
 }
@@ -142,4 +138,19 @@ String shortName(final String name) {
   }
 
   return shortName;
+}
+
+DateTime dayToday() {
+  final now = DateTime.now();
+  return DateTime(now.year, now.month, now.day);
+}
+
+String dateTimeToDayString(final DateTime date,
+    {final bool alwaysIncludeYear = false}) {
+  String yearSuffix = '';
+  if (alwaysIncludeYear)
+    yearSuffix = ' ${date.year}';
+  else if (date.year != DateTime.now().year) yearSuffix = ' ${date.year}';
+
+  return '${date.day} ${intToMonth(date.month)}$yearSuffix';
 }

@@ -80,7 +80,7 @@ class _DownloadIconButtonState extends State<DownloadIconButton> {
     FlutterDownloader.remove(taskId: _taskId, shouldDeleteContent: false);
     episodeDownloadInfo.remove(widget.episodeAudioUrl);
     episodeDownloadStates[widget.episodeAudioUrl].value = 0;
-    downloadedEpisodes.value = downloadedEpisodes.value - 1;
+    downloadNotifier.value = downloadNotifier.value - 1;
   }
 
   void pausePlayDownload() {}

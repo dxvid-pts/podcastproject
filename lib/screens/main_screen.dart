@@ -34,9 +34,7 @@ class MainScreen extends StatelessWidget {
       ),
       body: StreamBuilder<String>(
           stream: updateStream.stream,
-          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-            print('update  Stream');
-
+          builder: (_, __) {
             final widgets = <Widget>[
               /* StreamBuilder(
                     stream: updateStream.stream,
