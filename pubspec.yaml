@@ -19,18 +19,15 @@ dependencies:
   audio_service: ^0.11.2
   just_audio: ^0.2.2
   positioned_tap_detector: ^1.0.3
-  flutter_html: ^1.0.0
+  flutter_html: ^1.0.2
   marquee: ^1.5.2
   flutter_custom_tabs: ^0.6.0
-  flutter_downloader: ^1.4.4
+  flutter_downloader: ^1.5.0
   image: ^2.1.14
   flutter_cache_manager: ^1.4.1
   google_fonts: ^1.1.0
-  #TODO: https://pub.dev/packages/quick_actions
-
-dependency_overrides:
-  flutter_svg: ^0.18.0
   xml: ^4.3.0
+  #TODO: https://pub.dev/packages/quick_actions
 
 #dev_dependencies:
 #  flutter_test:

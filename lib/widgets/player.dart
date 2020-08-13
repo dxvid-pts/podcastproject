@@ -586,7 +586,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
   }
 
   @override
-  void onPlay() {
+  Future<void> onPlay() async{
     print(_audioPlayer.position.isNegative);
 
     // Start playing audio.
@@ -602,7 +602,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
   }
 
   @override
-  void onPause() {
+  Future<void> onPause() async{
     // Pause the audio.
     _audioPlayer.pause();
 
@@ -634,7 +634,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
   }
 
   @override
-  void onSeekTo(Duration position) async {
+  Future<void> onSeekTo(Duration position) async {
     await _audioPlayer.seek(position);
 
     await updateNotificationDuration();
@@ -662,7 +662,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
   }
 
   @override
-  void onAddQueueItem(MediaItem mediaItem) async {
+  Future<void> onAddQueueItem(MediaItem mediaItem) async {
     final int startingPoint = mediaItem.extras["starting_point"] ?? 0;
     final String filePath = mediaItem.extras["download_path"];
 
@@ -689,7 +689,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
   }
 
   @override
-  void onClick(MediaButton button) {
+  Future<void> onClick(MediaButton button) async{
     playPause();
   }
 
