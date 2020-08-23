@@ -1,7 +1,6 @@
-# Podcastproject
+# Podcast-Project
 
-This is the source code of my multi-article case study in which I created a fully-fledged podcast app with flutter. </br>
-The articles can be found here: https://www.peterscode.dev/go/podcast-project </br></br>
+A clean and intuitive podcast player made with flutter.
 The App is available on the Google Play Store and on the App Store.</br></br>
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/7/78/Google_Play_Store_badge_EN.svg/2000px-Google_Play_Store_badge_EN.svg.png" width="140">
 <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/3c/Download_on_the_App_Store_Badge.svg/1200px-Download_on_the_App_Store_Badge.svg.png" width="140">
