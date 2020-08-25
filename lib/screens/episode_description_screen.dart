@@ -30,6 +30,16 @@ class EpisodeDescriptionScreen extends StatelessWidget {
       ),
       body: ListView(
         children: [
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+            child: Text(
+              episode.title,
+              style: Theme.of(context)
+                  .textTheme
+                  .headline6
+                  .copyWith(fontWeight: FontWeight.normal),
+            ),
+          ),
           InkWell(
             onTap: () {
               if (popBack)
