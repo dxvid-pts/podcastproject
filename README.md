@@ -3,6 +3,14 @@
 A **clean** and **intuitive** podcast player made with flutter.
 The app processes everything locally on the device and ensures full privacy. 
 
+<div>
+  <img src="./images/preview_1.png" height="400"/>
+  <img src="./images/preview_2.png" height="400"/>
+  <img src="./images/preview_3.png" height="400"/>
+  <img src="./images/preview_4.png" height="400"/>
+  <img src="./images/preview_5.png" height="400"/>
+</div>
+
 ### Usage
 To add a podcast, tap the button with the plus icon and insert the RSS feed. 
 In the next step, the app will automatically fetch the data and add the podcast 
