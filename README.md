@@ -3,7 +3,7 @@
 A **clean** and **intuitive** podcast player made with flutter.
 The app processes everything locally on the device and ensures full **privacy**. 
 
-[ ![](./images/preview_1.png) ](./images/preview_1.png)
+[ ![](./images/preview_2.png) ](./images/preview_1.png)
 
 <div>
   <img src="./images/preview_1.png" height="400"/>
