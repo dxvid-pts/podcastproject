@@ -9,6 +9,7 @@ The app processes everything locally on the device and ensures full privacy.
   <img src="./images/preview_3.png" height="400"/>
   <img src="./images/preview_4.png" height="400"/>
 </div>
+*The podcasts displayed in the preview are taken from the US podcast charts and do not reflect the author's opinion.*
 
 ### Usage
 To add a podcast, tap the button with the plus icon and insert the RSS feed. 
