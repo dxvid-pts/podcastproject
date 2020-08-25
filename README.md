@@ -4,10 +4,10 @@ A **clean** and **intuitive** podcast player made with flutter.
 The app processes everything locally on the device and ensures full **privacy**. 
 
 <div>
-  <img src="./images/preview_1.png" width="24%"/>
-  <img src="./images/preview_2.png" width="24%"/>
-  <img src="./images/preview_3.png" width="24%"/>
-  <img src="./images/preview_4.png" width="24%"/>
+  <img src="./images/preview_1.png" height="400"/>
+  <img src="./images/preview_2.png" height="400"/>
+  <img src="./images/preview_3.png" height="400"/>
+  <img src="./images/preview_4.png" height="400"/>
 </div>
 
 > _The podcasts displayed in the preview are taken from the US podcast charts and do not reflect the author's opinion._
