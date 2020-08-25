@@ -1,7 +1,7 @@
 ## PodcastProject
 
 A **clean** and **intuitive** podcast player made with flutter.
-The app processes everything locally on the device and ensures full privacy. 
+The app processes everything locally on the device and ensures full **privacy**. 
 
 <div>
   <img src="./images/preview_1.png" height="400"/>
