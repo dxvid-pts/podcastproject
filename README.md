@@ -28,5 +28,4 @@ time later.
 ### Roadmap
 - [ ] IOS redesign and support
 - [ ] desktop and web support
-- [ ] option to change playback speed
-- [ ] transcript
+- [ ] add advanced audio options such astranscript support speed and changing playback
