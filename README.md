@@ -19,5 +19,7 @@ time later.
 - [x] RSS support
 
 ### Roadmap
+- [ ] IOS redesign and support
+- [ ] desktop and web support
 - [ ] option to change playback speed
 - [ ] transcript
