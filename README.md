@@ -28,6 +28,7 @@ time later.
 - [x] RSS support
 
 ### Roadmap
+- [ ] release app
 - [ ] IOS redesign and support
 - [ ] desktop and web support
 - [ ] add advanced audio options such as transcript support and changing playback speed
