@@ -2,7 +2,7 @@
 
 A **clean** and **intuitive** podcast player made with flutter.
 The app processes everything locally on the device and ensures full privacy. 
-![alt text](./images/preview_1.png)
+
 <div>
   <img src="./images/preview_1.png" height="400"/>
   <img src="./images/preview_2.png" height="400"/>
