@@ -35,7 +35,6 @@ class MainScreen extends StatelessWidget {
       body: StreamBuilder<String>(
           stream: updateStream.stream,
           builder: (_, __) {
-            if (podcastCount == null || podcasts.values.length < podcastCount) return Text('loading');
             final widgets = <Widget>[
               /* StreamBuilder(
                     stream: updateStream.stream,
