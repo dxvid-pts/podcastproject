@@ -8,6 +8,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 
 import 'package:podcast_player/main.dart';
 import 'package:podcast_player/utils.dart';
+import 'package:podcast_player/widgets/player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -33,16 +34,9 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
     //podcastCount = keys.length;
     print('load podcasts: ' + keys.length.toString());
 
-    Stopwatch stopwatch = Stopwatch()..start();
-
-    //TODO: load currentlyPlaying
-
     //loadCached
-    Map<String, String> feeds = Map();
     for (String url in keys) {
-      feeds.putIfAbsent(
-          url.replaceFirst('feed:', ''), () => prefs.getString(url));
-      /*try {
+      try {
         Podcast cached = await podcastFromXml(
             url.replaceFirst('feed:', ''), prefs.getString(url));
         print(cached.title);
@@ -57,10 +51,8 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
           });
       } catch (e) {
         print('error: $e');
-      }*/
+      }
     }
-    await loadPodcastsAsynchronously(feeds);
-    print('executed in ${stopwatch.elapsed.inSeconds}');
   } else {
     keys = podcasts.keys.toSet();
   }
@@ -74,11 +66,6 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
       podcastFromXml(url, await fetchXml(url));
     } catch (_) {}
   }
-}
-
-Future<List<Podcast>> loadPodcastsAsynchronously(
-    final Map<String, String> feeds){
-  return Future.wait(feeds.keys.map((url) => podcastFromXml(url, feeds[url])));
 }
 
 Future<String> fetchXml(final String url, {final bool ignoreCache}) async {
