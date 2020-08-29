@@ -8,6 +8,7 @@ import 'package:flutter_downloader/flutter_downloader.dart';
 
 import 'package:podcast_player/main.dart';
 import 'package:podcast_player/utils.dart';
+import 'package:podcast_player/widgets/player.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
@@ -25,13 +26,16 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
       prefs = await SharedPreferences.getInstance();
     }
 
-    //Load current Episode
-    final String currentCachedEpisodeUrl = prefs.getString('current_episode');
-
     keys = prefs.getKeys()..removeWhere((key) => !key.startsWith('feed:'));
 
     //podcastCount = keys.length;
     print('load podcasts: ' + keys.length.toString());
+    podcastCount = keys.length;
+
+    //Load current Episode
+    final String currentCachedEpisodeUrl = prefs.getString('current_episode');
+    print(currentCachedEpisodeUrl);
+    if (currentCachedEpisodeUrl != null) currentlyPlaying.value = Episode();
 
     Stopwatch stopwatch = Stopwatch()..start();
 
@@ -42,24 +46,13 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
     for (String url in keys) {
       feeds.putIfAbsent(
           url.replaceFirst('feed:', ''), () => prefs.getString(url));
-      /*try {
-        Podcast cached = await podcastFromXml(
-            url.replaceFirst('feed:', ''), prefs.getString(url));
-        print(cached.title);
-
-        //Set current Episode if loaded && != null
-        if (currentCachedEpisodeUrl != null)
-          cached.episodes.forEach((episodeUrl) {
-            if (episodeUrl == currentCachedEpisodeUrl) {
-              firstEpisodeLoadedFromSP = true;
-              currentlyPlaying.value = episodes[episodeUrl];
-            }
-          });
-      } catch (e) {
-        print('error: $e');
-      }*/
     }
-    await loadPodcastsAsynchronously(feeds);
+    await Future.wait(feeds.keys.map((url) => podcastFromXml(
+          url,
+          feeds[url],
+          currentCachedEpisodeUrl: currentCachedEpisodeUrl,
+        )));
+
     print('executed in ${stopwatch.elapsed.inSeconds}');
   } else {
     keys = podcasts.keys.toSet();
@@ -74,11 +67,6 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
       podcastFromXml(url, await fetchXml(url));
     } catch (_) {}
   }
-}
-
-Future<List<Podcast>> loadPodcastsAsynchronously(
-    final Map<String, String> feeds){
-  return Future.wait(feeds.keys.map((url) => podcastFromXml(url, feeds[url])));
 }
 
 Future<String> fetchXml(final String url, {final bool ignoreCache}) async {
@@ -97,7 +85,8 @@ Future<String> fetchXmlOnIsolate(final String url) async {
   return utf8.decode((await http.get(url)).bodyBytes);
 }
 
-Future<Podcast> podcastFromXml(final String url, final String xml) async {
+Future<Podcast> podcastFromXml(final String url, final String xml,
+    {final String currentCachedEpisodeUrl}) async {
   final List returns =
       await compute(podcastFromXmlOnIsolate, [url, xml]).catchError((onError) {
     print('onError $onError');
@@ -105,12 +94,17 @@ Future<Podcast> podcastFromXml(final String url, final String xml) async {
   Podcast podcast = returns[0];
   Map<String, Episode> episodesFromIsolate = returns[1];
 
-  //Create ValueNotifiers for every episode
+  //Create ValueNotifiers for every episode + checks current Episode
   podcast.episodes.forEach((episodeUrl) {
     if (episodeUrl != null) {
       saveEpisodeState(episodeUrl, prefs.getInt('state:' + episodeUrl) ?? 0,
           save: false);
       setEpisodeDownloadState(episodeUrl, 0, replace: false);
+    }
+
+    if (episodeUrl == currentCachedEpisodeUrl) {
+      firstEpisodeLoadedFromSP = true;
+      currentlyPlaying.value = episodes[episodeUrl];
     }
   });
 
