@@ -423,6 +423,7 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                     Platform.pathSeparator +
                     episodeDownloadInfo[currentEpisode.audioUrl].filename
                 : null,
+        'audio_behaviour': getSetting('audio_behaviour') ?? 0,
         //currentEpisode.autoStart
       },
       androidEnableQueue: true,
@@ -477,6 +478,7 @@ const controlsPlaying = [
 ];
 
 class AudioPlayerTask extends BackgroundAudioTask {
+  Map<String, int> settings = Map();
   final AudioPlayer _audioPlayer = AudioPlayer();
   Episode currentEpisode;
   MediaItem _mediaItem;
@@ -522,7 +524,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
     _eventSubscription = _audioPlayer.playbackEventStream.listen((event) {
       final bufferingState =
-          event.buffering ? AudioProcessingState.buffering : null;
+      event.buffering ? AudioProcessingState.buffering : null;
       switch (event.state) {
         case AudioPlaybackState.paused:
           AudioServiceBackground.setState(
@@ -583,6 +585,8 @@ class AudioPlayerTask extends BackgroundAudioTask {
           playing: false);
     } else
       await _audioPlayer.play();
+
+    settings.putIfAbsent('audio_behaviour', () => params['audio_behaviour']);
   }
 
   @override
@@ -691,6 +695,27 @@ class AudioPlayerTask extends BackgroundAudioTask {
   @override
   Future<void> onClick(MediaButton button) async{
     playPause();
+  }
+
+  // Handle a phone call or other interruption -> read settings
+  @override
+  Future<void> onAudioFocusLost(AudioInterruption interruption) async{
+    var opt = settings['audio_behaviour'];
+    print('AUDIO FOCUS LIS $opt');
+    switch (opt) {
+      case 1:
+        _audioPlayer.setVolume(0.5);
+        return;
+      case 2:
+        if (AudioServiceBackground.state.playing) onPause();
+        return;
+    }
+  }
+
+  // Normalize volume when focus gained again + settings option 1.
+  @override
+  Future<void> onAudioFocusGained(AudioInterruption interruption) async{
+    if (getSetting('audio_behaviour') ?? 0 == 1) _audioPlayer.setVolume(1);
   }
 
   Stream functionAsRepeatedStream(

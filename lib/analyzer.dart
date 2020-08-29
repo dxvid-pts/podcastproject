@@ -553,3 +553,8 @@ void setEpisodeDownloadState(final String audioUrl, final int progress,
     episodeDownloadStates.putIfAbsent(audioUrl, () => ValueNotifier(progress));
   else if (replace) episodeDownloadStates[audioUrl].value = progress;
 }
+
+void saveSetting(final String key, final int value) =>
+    prefs.setInt('sett:$key', value);
+
+int getSetting(final String key) => prefs.getInt('sett:$key');

@@ -1,20 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:podcast_player/screens/settings_screen.dart';
 
-typedef void OnChange(String value);
+import '../analyzer.dart';
 
 class SettingsSection extends StatefulWidget {
-  final OnChange onChange;
-  final String title, description;
+  final String title, description, keySettings;
   final List<String> selectable;
-  final int index;
+  final int initialIndex;
 
   const SettingsSection(
       {Key key,
-      this.onChange,
       @required this.title,
       this.description,
-      @required this.selectable,this.index = 0})
+      @required this.selectable,
+      @required this.keySettings,
+      this.initialIndex = 0})
       : super(key: key);
 
   @override
@@ -22,18 +22,19 @@ class SettingsSection extends StatefulWidget {
 }
 
 class _SettingsSectionState extends State<SettingsSection> {
-  String dropdownValue;
+  int dropdownIndex;
 
   @override
   void initState() {
-    dropdownValue = widget.selectable[widget.index];
+    dropdownIndex = getSetting(widget.keySettings) ?? widget.initialIndex;
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: paddingHorizontal,vertical: 22),
+      padding: const EdgeInsets.symmetric(
+          horizontal: paddingHorizontal, vertical: 22),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -42,7 +43,7 @@ class _SettingsSectionState extends State<SettingsSection> {
             style: Theme.of(context).textTheme.headline6,
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 4,bottom: 16),
+            padding: const EdgeInsets.only(top: 4, bottom: 16),
             child: Text(
               widget.description,
               style: Theme.of(context).textTheme.subtitle1,
@@ -53,22 +54,22 @@ class _SettingsSectionState extends State<SettingsSection> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 22),
               child: DropdownButtonHideUnderline(
-                child: DropdownButton<String>(
-                  onChanged: (val) {
+                child: DropdownButton<int>(
+                  onChanged: (newIndex) {
                     setState(() {
-                      dropdownValue = val;
+                      dropdownIndex = newIndex;
                     });
-                    widget.onChange(val);
+                    saveSetting(widget.keySettings, newIndex);
                   },
                   style: TextStyle(color: Colors.black),
-                  value: dropdownValue,
-                  items: widget.selectable
-                      .map<DropdownMenuItem<String>>((String value) {
-                    return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
-                    );
-                  }).toList(),
+                  value: dropdownIndex,
+                  items: <DropdownMenuItem<int>>[
+                    for (int i = 0; i < widget.selectable.length; i++)
+                      DropdownMenuItem<int>(
+                        value: i,
+                        child: Text(widget.selectable[i]),
+                      )
+                  ],
                 ),
               ),
             ),
@@ -78,3 +79,12 @@ class _SettingsSectionState extends State<SettingsSection> {
     );
   }
 }
+/*
+widget.selectable
+                      .map<DropdownMenuItem<int>>((String value) {
+                    return DropdownMenuItem<int>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+ */
