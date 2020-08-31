@@ -27,6 +27,9 @@ dependencies:
   flutter_cache_manager: ^1.4.1
   google_fonts: ^1.1.0
   xml: ^4.4.1
+  file_picker: ^1.13.3
+  progress_dialog: ^1.2.4
+  permission_handler: ^5.0.1+1
   #TODO: https://pub.dev/packages/quick_actions
 
 #dev_dependencies:
