@@ -68,7 +68,8 @@ class MainScreen extends StatelessWidget {
                               builder: (context) {
                                 return TextDialogWidget(
                                   title: 'Add Podcast',
-                                  hint: 'RSS-Feed',
+                                  labelText: 'Enter RSS-Feed',
+                                  hint: 'https://www.domain.com/rss',
                                   okButtonText: 'Add',
                                   onSubmit: (url) {
                                     Navigator.push(
@@ -91,13 +92,14 @@ class MainScreen extends StatelessWidget {
                   ),
                 ],
               ),
-              Padding(
-                padding: const EdgeInsets.only(left: 10, bottom: 6, top: 13),
-                child: Text(
-                  'New Episodes:',
-                  style: GoogleFonts.lexendDeca(fontSize: 14.4),
+              if (podcasts.keys.length > 0)
+                Padding(
+                  padding: const EdgeInsets.only(left: 10, bottom: 6, top: 13),
+                  child: Text(
+                    'New Episodes:',
+                    style: GoogleFonts.lexendDeca(fontSize: 14.4),
+                  ),
                 ),
-              ),
               for (Episode e in episodes.values
                   .where((episode) => episode.date != null)
                   .toList()

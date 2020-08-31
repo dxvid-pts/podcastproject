@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 typedef OnSubmit(String text);
 
 class TextDialogWidget extends StatefulWidget {
-  final String title, hint, cancelButtonText, okButtonText;
+  final String title, hint, labelText, cancelButtonText, okButtonText;
   final OnSubmit onSubmit;
 
   const TextDialogWidget(
@@ -12,7 +12,8 @@ class TextDialogWidget extends StatefulWidget {
       @required this.hint,
       this.cancelButtonText = 'Cancel',
       @required this.okButtonText,
-      @required this.onSubmit})
+      @required this.onSubmit,
+      @required this.labelText})
       : super(key: key);
 
   @override
@@ -37,7 +38,7 @@ class _TextDialogWidgetState extends State<TextDialogWidget> {
         controller: _textFieldController,
         decoration: InputDecoration(
           hintText: widget.hint,
-          labelText: 'Enter the Value',
+          labelText: widget.labelText,
           errorText: _validate ? 'Text Can\'t Be Empty' : null,
         ),
       ),
