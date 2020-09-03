@@ -71,7 +71,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       Row(
                         children: [
-                          OutlinedButton(
+                          OutlineButton(
                             onPressed: () async {
                               if (!await Permission.storage.request().isGranted)
                                 return;
@@ -103,7 +103,7 @@ class SettingsScreen extends StatelessWidget {
                             child: Text('Export app data'),
                           ),
                           SizedBox(width: 10),
-                          ElevatedButton(
+                          RaisedButton(
                             onPressed: () async {
                               if (!await Permission.storage.request().isGranted)
                                 return;
@@ -129,15 +129,15 @@ class SettingsScreen extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.symmetric(
                   horizontal: paddingHorizontal, vertical: 10),
-              child: OutlinedButton.icon(
+              child: OutlineButton.icon(
                 //color: greyAccent,
                 icon: Icon(
-                  Icons.assignment,
+                  Icons.assignment_outlined,
                   color: Colors.black.withOpacity(0.6),
                 ),
                 label: Padding(
                   padding: const EdgeInsets.symmetric(vertical: 19),
-                  child: Text('Licenses'),
+                  child: Text('View licenses'),
                 ),
                 onPressed: () => showLicensePage(
                   context: context,
@@ -175,7 +175,7 @@ void import(String json) {
       case int:
         prefs.setInt(key, value);
         break;
-        //TODO: Not working yet
+      //TODO: Not working yet
       case Iterable:
         prefs.setStringList(key, value);
         break;

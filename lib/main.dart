@@ -71,6 +71,10 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
         accentColor: Colors.white,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        bottomNavigationBarTheme: BottomNavigationBarTheme.of(context).copyWith(
+          selectedLabelStyle: GoogleFonts.lexendDeca(),
+          unselectedLabelStyle: GoogleFonts.lexendDeca(),
+        ),
       ),
       home: App(),
     );
@@ -129,18 +133,12 @@ class _AppState extends State<App> {
           child: BottomNavigationBar(
             items: <BottomNavigationBarItem>[
               BottomNavigationBarItem(
-                icon: Icon(Icons.home),
-                title: Text(
-                  'Feed',
-                  style: GoogleFonts.lexendDeca(),
-                ),
+                icon: Icon(Icons.home_outlined),
+                label: 'Feed',
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.library_books),
-                title: Text(
-                  'Library',
-                  style: GoogleFonts.lexendDeca(),
-                ),
+                icon: Icon(Icons.library_books_outlined),
+                label: "Library",
               ),
             ],
             currentIndex: _selectedIndex,
