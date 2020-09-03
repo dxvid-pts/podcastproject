@@ -35,7 +35,7 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
     print('load podcasts: ' + keys.length.toString());
 
     //loadCached
-    for (String url in keys) {
+    await Future.wait(keys.map((url) async {
       try {
         Podcast cached = await podcastFromXml(
             url.replaceFirst('feed:', ''), prefs.getString(url));
@@ -52,20 +52,20 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
       } catch (e) {
         print('error: $e');
       }
-    }
+    }));
   } else {
     keys = podcasts.keys.toSet();
   }
 
   //refresh Feeds
   //if (skipSharedPreferences)
-  for (String url in keys) {
+  await Future.wait(keys.map((url) async {
     if (url.startsWith('feed:')) url = url.split('feed:')[1];
 
     try {
       podcastFromXml(url, await fetchXml(url));
     } catch (_) {}
-  }
+  }));
 }
 
 Future<String> fetchXml(final String url, {final bool ignoreCache}) async {
