@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 
+int savedProgress = 0;
+
 class AudioProgressSlider extends StatefulWidget {
   final Stream<int> progressStream;
   final Stream<int> durationStream;
@@ -23,7 +25,7 @@ class _AudioProgressSliderState extends State<AudioProgressSlider> {
   double _sliderValue = 0;
   bool _sliding = false;
   int _duration = 1;
-  int _progress = 0;
+  int _progress = savedProgress;
   bool _loading = true;
 
   StreamSubscription _durationStreamSubscription;
@@ -49,10 +51,12 @@ class _AudioProgressSliderState extends State<AudioProgressSlider> {
     });
     _progressStreamSubscription = widget.progressStream.listen((progress) {
       if (_sliding) return;
+
       setState(() {
         _progress = progress;
         _sliderValue = progress > _duration ? 1.0 : progress / _duration;
       });
+      savedProgress = progress;
     });
 
     super.initState();
@@ -73,7 +77,7 @@ class _AudioProgressSliderState extends State<AudioProgressSlider> {
       String progressSecs = (_progress - progressMins * 60).toString();
       if (progressSecs.length < 2) progressSecs = '0' + progressSecs;
 
-      final int secondsLeft = _duration -_progress;
+      final int secondsLeft = _duration - _progress;
       final int leftMins = (secondsLeft / 60).floor();
       String leftSecs = (secondsLeft - leftMins * 60).toString();
       if (leftSecs.length < 2) leftSecs = '0' + leftSecs;
@@ -91,6 +95,7 @@ class _AudioProgressSliderState extends State<AudioProgressSlider> {
             onChanged: (double value) {
               setState(() {
                 _sliderValue = value;
+                _progress = (_duration * value).floor();
               });
             },
             onChangeEnd: (value) async {
@@ -108,7 +113,6 @@ class _AudioProgressSliderState extends State<AudioProgressSlider> {
             children: [
               Text('$progressMins:$progressSecs'),
               Text('-$leftMins:$leftSecs'),
-
             ],
           ),
         ],
