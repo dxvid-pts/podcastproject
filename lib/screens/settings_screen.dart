@@ -65,7 +65,7 @@ class SettingsScreen extends StatelessWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: 4, bottom: 16),
                         child: Text(
-                          'Backup app data such as RSS feeds',
+                          'Backup your data',
                           style: Theme.of(context).textTheme.subtitle1,
                         ),
                       ),
@@ -114,8 +114,20 @@ class SettingsScreen extends StatelessWidget {
                               );
                               if (!file.path.endsWith('.pd')) return;
 
+                              final ProgressDialog pr = ProgressDialog(context);
+                              pr.style(
+                                  progressWidget: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                  message: 'Importing data from ${file.path}');
+
+                              await pr.show();
+
                               print('import ${file.path}');
                               import(file.readAsStringSync());
+
+                              await pr.hide();
                             },
                             child: Text('Import app data'),
                           ),
@@ -175,11 +187,20 @@ void import(String json) {
       case int:
         prefs.setInt(key, value);
         break;
-      //TODO: Not working yet
-      case Iterable:
-        prefs.setStringList(key, value);
+      default:
+        if (value.runtimeType.toString().contains('List')) {
+          try {
+            var list = value as List<dynamic>;
+            List<String> stringList = List();
+            for (var v in list) stringList.add(v.toString());
+
+            prefs.setStringList(key, stringList);
+          } catch (e) {
+            print(e);
+          }
+        }
+
         break;
     }
-    print(value.runtimeType.toString());
   }
 }
