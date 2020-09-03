@@ -32,3 +32,5 @@ time later.
 - [ ] IOS redesign and support
 - [ ] desktop and web support
 - [ ] add advanced audio options such as transcript support and changing playback speed
+
+>Note: The app is dependent on these two pull requests([New Button Universe #59702](https://github.com/flutter/flutter/pull/59702), [[Material] Updated icons and fonts #61778](https://github.com/flutter/flutter/pull/61778)), which are only available on the master channel and thus not compilable if you are on stable.
