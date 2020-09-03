@@ -110,6 +110,7 @@ class MainScreen extends StatelessWidget {
                 ),
             ];
             return RefreshIndicator(
+              color: Colors.blue,
               onRefresh: () async {
                 await loadPodcasts(skipSharedPreferences: true);
               },
