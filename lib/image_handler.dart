@@ -55,7 +55,7 @@ class OptimizedImage extends StatelessWidget {
                 ),
               );
           } else
-            return Skeleton(width: 60);
+            return InkWell(child: Skeleton(width: 60), onTap: onTap,);
         },
       ),
     );
@@ -64,15 +64,12 @@ class OptimizedImage extends StatelessWidget {
 
 Future<Uint8List> loadImage(final String url) async {
   _future.putIfAbsent(url, () => _loadImage(url));
-  print(_future.length);
   return _future[url];
 }
 
 Future<Uint8List> _loadImage(final String url) async {
   var cache = await _getImageFromCache(url);
-  print('a');
   if (cache != null) return cache;
-  print('b');
   final resized = await _getResizedImage(url, imageResolution, imageResolution);
 
   _ram.putIfAbsent(url, () => resized);
