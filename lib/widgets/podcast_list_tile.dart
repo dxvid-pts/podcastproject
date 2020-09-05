@@ -14,23 +14,20 @@ class PodcastListTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Hero(
-      tag: podcast.img,
-      child: Tooltip(
-        message: shortName(podcast.title),
-        child: PodcastListTileBase(
-          child: OptimizedImage(
-            url: podcast.img,
-            onTap: () {
-              Navigator.of(context).push(
-                SharedAxisPageRoute(
-                    page: PodcastOverviewScreen(
-                      feedUrl: podcast.url,
-                    ),
-                    transitionType: SharedAxisTransitionType.scaled),
-              );
-            },
-          ),
+    return Tooltip(
+      message: shortName(podcast.title),
+      child: PodcastListTileBase(
+        child: OptimizedImage(
+          url: podcast.img,
+          onTap: () {
+            Navigator.of(context).push(
+              SharedAxisPageRoute(
+                  page: PodcastOverviewScreen(
+                    feedUrl: podcast.url,
+                  ),
+                  transitionType: SharedAxisTransitionType.scaled),
+            );
+          },
         ),
       ),
     );

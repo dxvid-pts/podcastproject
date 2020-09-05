@@ -226,12 +226,9 @@ class PodcastHeaderWidget extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.only(left: 7),
-                child: Hero(
-                  tag: url,
-                  child: SizedBox(
-                    height: 110,
-                    child: OptimizedImage(url: image),
-                  ),
+                child: SizedBox(
+                  height: 110,
+                  child: OptimizedImage(url: image),
                 ),
               ),
             ],
