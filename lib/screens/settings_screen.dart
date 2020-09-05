@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/settings_section_widget.dart';
 import 'package:progress_dialog/progress_dialog.dart';
 
@@ -139,26 +140,47 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: paddingHorizontal, vertical: 10),
-              child: OutlineButton.icon(
-                //color: greyAccent,
-                icon: Icon(
-                  Icons.assignment_outlined,
-                  color: Colors.black.withOpacity(0.6),
-                ),
-                label: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 19),
-                  child: Text('View licenses'),
-                ),
-                onPressed: () => showLicensePage(
-                  context: context,
-                  applicationName: "Podcast-Player",
-                  applicationVersion: "1.1.0",
-                  //applicationIcon: "applicationIcon",
-                  applicationLegalese:
-                      "Developed by David Peters\nhttps://www.peterscode.dev",
-                ),
+              padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                      child: OutlineButton.icon(
+                    //color: greyAccent,
+                    icon: Icon(
+                      Icons.code,
+                      color: Colors.black.withOpacity(0.6),
+                    ),
+                    label: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 19),
+                      child: Text(
+                        'Open-Source',
+                      ),
+                    ),
+                    onPressed: () => openLinkInBrowser(context,
+                        'https://github.com/peterscodee/podcastproject'),
+                  )),
+                  SizedBox(width: 10),
+                  Expanded(
+                      child: OutlineButton.icon(
+                    //color: greyAccent,
+                    icon: Icon(
+                      Icons.assignment_outlined,
+                      color: Colors.black.withOpacity(0.6),
+                    ),
+                    label: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 19),
+                      child: Text('View licenses'),
+                    ),
+                    onPressed: () => showLicensePage(
+                      context: context,
+                      applicationName: "Podcast-Player",
+                      applicationVersion: "1.1.0",
+                      //applicationIcon: "applicationIcon",
+                      applicationLegalese:
+                          "Developed by David Peters\nhttps://www.peterscode.dev",
+                    ),
+                  )),
+                ],
               ),
             ),
           ],
