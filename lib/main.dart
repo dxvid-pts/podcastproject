@@ -9,6 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:podcast_player/screens/main_screen.dart';
 import 'package:podcast_player/screens/library_screen/library_screen.dart';
 import 'package:podcast_player/utils.dart';
+import 'package:podcast_player/widgets/music_preview_player_widget.dart';
 import 'package:podcast_player/widgets/navigator_page_widget.dart';
 import 'package:podcast_player/widgets/player.dart';
 
@@ -104,29 +105,39 @@ class _AppState extends State<App> {
         return false;
       },
       child: Scaffold(
-        body: Stack(
-          alignment: Alignment.bottomCenter,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(/*bottom: miniplayerHeight*/),
-              child: IndexedStack(
-                index: _selectedIndex,
-                children: <Widget>[
-                  NavigatorPage(
-                    navigatorKey: _navigatorKeys[0],
-                    child: MainScreen(controller: mainScreenController),
-                  ),
-                  NavigatorPage(
-                    navigatorKey: _navigatorKeys[1],
-                    child: LibraryScreen(),
-                  ),
-                ],
+        body: AudioServiceWidget(
+          child: Stack(
+            alignment: Alignment.bottomCenter,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(/*bottom: miniplayerHeight*/),
+                child: IndexedStack(
+                  index: _selectedIndex,
+                  children: <Widget>[
+                    NavigatorPage(
+                      navigatorKey: _navigatorKeys[0],
+                      child: MainScreen(controller: mainScreenController),
+                    ),
+                    NavigatorPage(
+                      navigatorKey: _navigatorKeys[1],
+                      child: LibraryScreen(),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            AudioServiceWidget(
-              child: AudioControllerWidget(),
-            ),
-          ],
+              AudioControllerWidget(),
+              ValueListenableBuilder(
+                builder: (BuildContext context, Episode episode, Widget child) {
+                  if (episode != null &&
+                      episode.timestamps != null &&
+                      episode.timestamps.keys.length > 0)
+                    return MusicPreviewWidget(timestamps: episode.timestamps);
+                  return Container();
+                },
+                valueListenable: currentlyPlaying,
+              ),
+            ],
+          ),
         ),
         bottomNavigationBar: ValueListenableBuilder(
           valueListenable: playerExpandProgress,

@@ -30,6 +30,7 @@ dependencies:
   file_picker: ^1.13.3
   progress_dialog: ^1.2.4
   permission_handler: ^5.0.1+1
+  webview_flutter: ^0.3.22+1
   #TODO: https://pub.dev/packages/quick_actions
 
 #dev_dependencies:

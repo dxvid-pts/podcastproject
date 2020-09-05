@@ -13,6 +13,9 @@ class Episode {
   DateTime date;
   Duration duration;
 
+  ///timestamp in sec, Spotify embed url
+  Map<int, String> timestamps;
+
   String get dateString {
     String dateString = '<NO DATE>';
     if (date != null) {

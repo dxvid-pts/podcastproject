@@ -17,7 +17,8 @@ import 'package:podcast_player/widgets/progress_slider_widget.dart';
 import '../analyzer.dart';
 
 final ValueNotifier<Episode> currentlyPlaying = ValueNotifier(null);
-final ValueNotifier<double> playerExpandProgress = ValueNotifier(playerMinHeight);
+final ValueNotifier<double> playerExpandProgress =
+    ValueNotifier(playerMinHeight);
 
 const double playerMinHeight = 70;
 const double playerMaxHeight = 370;
@@ -30,16 +31,22 @@ class AudioControllerWidget extends StatefulWidget {
 
 bool initialized = false;
 
+Stream<int> positionUpdateStream =
+    getProgressAsTimedStream(const Duration(seconds: 1)).asBroadcastStream();
+
+Stream<int> getProgressAsTimedStream(final Duration duration) async* {
+  await for (var _ in Stream.periodic(duration)) {
+    final p = AudioService.playbackState;
+    if (p != null && p.playing) yield p.currentPosition.inSeconds;
+  }
+}
+
 class _AudioControllerWidgetState extends State<AudioControllerWidget> {
   bool isPlaying;
   Episode currentEpisode;
-  Stream<int> positionUpdateStream;
 
   @override
   void initState() {
-    positionUpdateStream =
-        getProgressAsTimedStream(Duration(seconds: 1)).asBroadcastStream();
-
     currentlyPlaying.addListener(() {
       Episode wasCurrentEp;
       setState(() {
@@ -389,13 +396,6 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
           );
   }
 
-  Stream<int> getProgressAsTimedStream(final Duration duration) async* {
-    await for (var _ in Stream.periodic(duration)) {
-      final p = AudioService.playbackState;
-      if (p != null && p.playing) yield p.currentPosition.inSeconds;
-    }
-  }
-
   void startAudioService() async {
     //TODO: Necessary?
     await AudioService.stop();
@@ -524,7 +524,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
     _eventSubscription = _audioPlayer.playbackEventStream.listen((event) {
       final bufferingState =
-      event.buffering ? AudioProcessingState.buffering : null;
+          event.buffering ? AudioProcessingState.buffering : null;
       switch (event.state) {
         case AudioPlaybackState.paused:
           AudioServiceBackground.setState(
@@ -590,7 +590,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
   }
 
   @override
-  Future<void> onPlay() async{
+  Future<void> onPlay() async {
     print(_audioPlayer.position.isNegative);
 
     // Start playing audio.
@@ -606,7 +606,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
   }
 
   @override
-  Future<void> onPause() async{
+  Future<void> onPause() async {
     // Pause the audio.
     _audioPlayer.pause();
 
@@ -693,13 +693,13 @@ class AudioPlayerTask extends BackgroundAudioTask {
   }
 
   @override
-  Future<void> onClick(MediaButton button) async{
+  Future<void> onClick(MediaButton button) async {
     playPause();
   }
 
   // Handle a phone call or other interruption -> read settings
   @override
-  Future<void> onAudioFocusLost(AudioInterruption interruption) async{
+  Future<void> onAudioFocusLost(AudioInterruption interruption) async {
     var opt = settings['audio_behaviour'];
     print('AUDIO FOCUS LIS $opt');
     switch (opt) {
@@ -714,7 +714,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
 
   // Normalize volume when focus gained again + settings option 1.
   @override
-  Future<void> onAudioFocusGained(AudioInterruption interruption) async{
+  Future<void> onAudioFocusGained(AudioInterruption interruption) async {
     if (getSetting('audio_behaviour') ?? 0 == 1) _audioPlayer.setVolume(1);
   }
 
