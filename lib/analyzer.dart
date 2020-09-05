@@ -510,8 +510,6 @@ void loadDownloadedFiles() async {
   }
 
   FlutterDownloader.registerCallback(downloadCallback);
-
-  print(episodeDownloadStates.toString());
 }
 
 void downloadCallback(String id, DownloadTaskStatus status, int progress) {

@@ -8,7 +8,6 @@ class NavigationRoutes {
   static const String third = '/third';
 
   static Widget buildRoute(final String route, {int index = 0}) {
-    print('a');
     switch (route) {
       case root:
         if (index == 0)
@@ -38,7 +37,6 @@ class NavigatorWidget extends StatelessWidget {
     return Navigator(
       initialRoute: route,
       onGenerateRoute: (routeSettings) {
-        print(routeSettings.name);
         return MaterialPageRoute(
           builder: (context) =>
               NavigationRoutes.buildRoute(routeSettings.name, index: index),
