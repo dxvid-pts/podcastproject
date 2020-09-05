@@ -19,10 +19,8 @@ class LibraryScreen extends StatelessWidget {
               tooltip: 'Settings',
               icon: Icon(PodcastIcons.vector),
               onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => SettingsScreen()),
-                );
+                Navigator.of(context, rootNavigator: true).push(
+                    MaterialPageRoute(builder: (context) => SettingsScreen()));
               },
             ),
           ],
