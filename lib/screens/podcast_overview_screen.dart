@@ -26,6 +26,7 @@ class PodcastOverviewScreen extends StatefulWidget {
 class _PodcastOverviewScreenState extends State<PodcastOverviewScreen> {
   Podcast podcast;
   StreamSubscription<String> listener;
+  String search;
 
   @override
   void initState() {
@@ -52,6 +53,17 @@ class _PodcastOverviewScreenState extends State<PodcastOverviewScreen> {
 
   @override
   Widget build(BuildContext context) {
+    Set<Episode> filteredEpisodes = Set();
+    if (search != null)
+      for (String eUrl in podcast.episodes) {
+        final Episode episode = episodes[eUrl];
+
+        if (episode.title.contains(search))
+          filteredEpisodes.add(episode);
+        else if (episode.description.contains(search))
+          filteredEpisodes.add(episode);
+      }
+
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
@@ -133,8 +145,39 @@ class _PodcastOverviewScreenState extends State<PodcastOverviewScreen> {
               },
             ),
           ),
-          for (String episodeUrl in podcast.episodes)
-            EpisodeListTile(episode: episodes[episodeUrl]),
+          Padding(
+            padding: EdgeInsets.only(left: 3),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    textCapitalization: TextCapitalization.sentences,
+                    decoration: InputDecoration(
+                      hintText: 'Search',
+                      contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
+                      border: InputBorder.none,
+                      filled: true,
+                      fillColor: Colors.grey[100],
+                    ),
+                    onChanged: (keyword) => setState(() {
+                      if (keyword.length == 0)
+                        search = null;
+                      else
+                        search = keyword;
+                    }),
+                  ),
+                ),
+                IconButton(icon: Icon(Icons.filter_list), onPressed: () {}),
+              ],
+            ),
+          ),
+          if (search == null)
+            for (String episodeUrl in podcast.episodes)
+              EpisodeListTile(episode: episodes[episodeUrl]),
+          if (search != null)
+            for (Episode episode in filteredEpisodes)
+              EpisodeListTile(episode: episode),
         ],
       ),
     );
