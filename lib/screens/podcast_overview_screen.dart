@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
@@ -7,6 +8,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:podcast_player/image_handler.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/episode_list_tile.dart';
+import 'package:podcast_player/widgets/web_layout.dart';
 
 import '../analyzer.dart';
 import '../main.dart';
@@ -64,23 +66,106 @@ class _PodcastOverviewScreenState extends State<PodcastOverviewScreen> {
           filteredEpisodes.add(episode);
       }
 
+    final body = ListView(
+      children: [
+        PodcastHeaderWidget(
+          title: podcast.title,
+          author: podcast.author,
+          description: podcast.description,
+          image: podcast.img,
+          url: podcast.url,
+          link: podcast.link,
+        ),
+        Tooltip(
+          message:
+              'Unsubscribe from ${podcast.title.contains(' ') ? podcast.title.split(' ')[0] : podcast.title}',
+          child: RaisedButton(
+            child: Text('Unsubscribe'),
+            onPressed: //() => unsubscribePodcast(podcast.url),
+                () {
+              showDialog<void>(
+                context: context,
+                barrierDismissible: true, // user must tap button!
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    title: Text('Confirm Action'),
+                    content: Text(
+                        'Do you want to unsubscribe from ${podcast.title}?'),
+                    actions: <Widget>[
+                      FlatButton(
+                        child: Text('Cancel'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      FlatButton(
+                        child: Text('Unsubscribe'),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                          unsubscribePodcast(podcast.url);
+                        },
+                      ),
+                    ],
+                  );
+                },
+              );
+            },
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(left: 3),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Expanded(
+                child: TextFormField(
+                  textCapitalization: TextCapitalization.sentences,
+                  decoration: InputDecoration(
+                    hintText: 'Search',
+                    contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
+                    border: InputBorder.none,
+                    filled: true,
+                    fillColor: Colors.grey[100],
+                  ),
+                  onChanged: (keyword) => setState(() {
+                    if (keyword.length == 0)
+                      search = null;
+                    else
+                      search = keyword;
+                  }),
+                ),
+              ),
+              IconButton(icon: Icon(Icons.filter_list), onPressed: () {}),
+            ],
+          ),
+        ),
+        if (search == null)
+          for (String episodeUrl in podcast.episodes)
+            EpisodeListTile(episode: episodes[episodeUrl]),
+        if (search != null)
+          for (Episode episode in filteredEpisodes)
+            EpisodeListTile(episode: episode),
+      ],
+    );
+    final appBarTitle = Row(
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(right: 8),
+          child: SizedBox(
+            height: 38,
+            child: OptimizedImage(url: podcast.img), //fit: BoxFit.contain,
+          ),
+        ),
+        Expanded(
+          child: Text(podcast.title),
+        )
+      ],
+    );
+
     return Scaffold(
       appBar: AppBar(
         titleSpacing: 0,
-        title: Row(
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(right: 8),
-              child: SizedBox(
-                height: 38,
-                child: OptimizedImage(url: podcast.img), //fit: BoxFit.contain,
-              ),
-            ),
-            Expanded(
-              child: Text(podcast.title),
-            )
-          ],
-        ),
+        title: !kIsWeb ? appBarTitle : WebLayout(child: appBarTitle),
         actions: <Widget>[
           PopupMenuButton<PopupMenu>(
             onSelected: (PopupMenu result) {
@@ -99,87 +184,7 @@ class _PodcastOverviewScreenState extends State<PodcastOverviewScreen> {
           )
         ],
       ),
-      body: ListView(
-        children: [
-          PodcastHeaderWidget(
-            title: podcast.title,
-            author: podcast.author,
-            description: podcast.description,
-            image: podcast.img,
-            url: podcast.url,
-            link: podcast.link,
-          ),
-          Tooltip(
-            message:
-                'Unsubscribe from ${podcast.title.contains(' ') ? podcast.title.split(' ')[0] : podcast.title}',
-            child: RaisedButton(
-              child: Text('Unsubscribe'),
-              onPressed: //() => unsubscribePodcast(podcast.url),
-                  () {
-                showDialog<void>(
-                  context: context,
-                  barrierDismissible: true, // user must tap button!
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                      title: Text('Confirm Action'),
-                      content: Text(
-                          'Do you want to unsubscribe from ${podcast.title}?'),
-                      actions: <Widget>[
-                        FlatButton(
-                          child: Text('Cancel'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                        FlatButton(
-                          child: Text('Unsubscribe'),
-                          onPressed: () {
-                            Navigator.of(context).pop();
-                            unsubscribePodcast(podcast.url);
-                          },
-                        ),
-                      ],
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 3),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.end,
-              children: [
-                Expanded(
-                  child: TextFormField(
-                    textCapitalization: TextCapitalization.sentences,
-                    decoration: InputDecoration(
-                      hintText: 'Search',
-                      contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
-                      border: InputBorder.none,
-                      filled: true,
-                      fillColor: Colors.grey[100],
-                    ),
-                    onChanged: (keyword) => setState(() {
-                      if (keyword.length == 0)
-                        search = null;
-                      else
-                        search = keyword;
-                    }),
-                  ),
-                ),
-                IconButton(icon: Icon(Icons.filter_list), onPressed: () {}),
-              ],
-            ),
-          ),
-          if (search == null)
-            for (String episodeUrl in podcast.episodes)
-              EpisodeListTile(episode: episodes[episodeUrl]),
-          if (search != null)
-            for (Episode episode in filteredEpisodes)
-              EpisodeListTile(episode: episode),
-        ],
-      ),
+      body: !kIsWeb ? body : WebLayout(child: body),
     );
   }
 }

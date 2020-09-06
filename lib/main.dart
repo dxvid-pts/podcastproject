@@ -6,8 +6,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:podcast_player/podcast_icons_icons.dart';
 import 'package:podcast_player/screens/main_screen.dart';
 import 'package:podcast_player/screens/library_screen/library_screen.dart';
+import 'package:podcast_player/screens/settings_screen.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/music_preview_player_widget.dart';
 import 'package:podcast_player/widgets/navigator_page_widget.dart';
@@ -42,11 +44,6 @@ StreamController<String> updateStream = StreamController<String>.broadcast();
 int podcastCount;
 
 bool firstEpisodeLoadedFromSP = false;
-
-final List<GlobalKey<NavigatorState>> _navigatorKeys = [
-  GlobalKey(),
-  GlobalKey()
-];
 
 void main() {
   LicenseRegistry.addLicense(() async* {
@@ -93,110 +90,170 @@ class _AppState extends State<App> {
   int _selectedIndex = 0;
   final ScrollController mainScreenController = ScrollController();
 
+  List<NavigationItem> navigationIconsMobile;
+  List<NavigationItem> navigationIconsWeb;
+
+  @override
+  void initState() {
+    navigationIconsMobile = [
+      NavigationItem(const Icon(Icons.home_outlined), 'Feed',
+          MainScreen(controller: mainScreenController)),
+      NavigationItem(
+          const Icon(Icons.library_books_outlined), 'Library', LibraryScreen()),
+    ];
+    if (kIsWeb)
+      navigationIconsWeb = [
+        ...navigationIconsMobile,
+        NavigationItem(Icon(PodcastIcons.vector), 'Settings', SettingsScreen()),
+      ];
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
+    final body = AudioServiceWidget(
+      child: Stack(
+        alignment: Alignment.bottomCenter,
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(/*bottom: miniplayerHeight*/),
+            child: IndexedStack(
+              index: _selectedIndex,
+              children: navigationIcons
+                  .map((item) => NavigatorPage(
+                        navigatorKey: item.key,
+                        child: item.child,
+                      ))
+                  .toList(),
+            ),
+          ),
+          AudioControllerWidget(),
+          if (!kIsWeb)
+            ValueListenableBuilder(
+              builder: (BuildContext context, Episode episode, Widget child) {
+                if (episode != null &&
+                    episode.timestamps != null &&
+                    episode.timestamps.keys.length > 0)
+                  return MusicPreviewWidget(timestamps: episode.timestamps);
+                return Container();
+              },
+              valueListenable: currentlyPlaying,
+            ),
+        ],
+      ),
+    );
+
     return WillPopScope(
       onWillPop: () async {
         final NavigatorState navigator =
-            _navigatorKeys[_selectedIndex].currentState;
+            navigationIcons[_selectedIndex].key.currentState;
         if (!navigator.canPop()) return true;
         navigator.pop();
 
         return false;
       },
       child: Scaffold(
-        body: AudioServiceWidget(
-          child: Stack(
-            alignment: Alignment.bottomCenter,
-            children: [
-              Padding(
-                padding: const EdgeInsets.only(/*bottom: miniplayerHeight*/),
-                child: IndexedStack(
-                  index: _selectedIndex,
-                  children: <Widget>[
-                    NavigatorPage(
-                      navigatorKey: _navigatorKeys[0],
-                      child: MainScreen(controller: mainScreenController),
-                    ),
-                    NavigatorPage(
-                      navigatorKey: _navigatorKeys[1],
-                      child: LibraryScreen(),
-                    ),
-                  ],
-                ),
+        body: !kIsWeb
+            ? body
+            : Row(
+                children: [
+                  NavigationRail(
+                    selectedIndex: _selectedIndex,
+                    onDestinationSelected: onNavigationTap,
+                    labelType: NavigationRailLabelType.all,
+                    destinations: navigationIcons
+                        .map(
+                          (item) => NavigationRailDestination(
+                            icon: item.icon,
+                            label: Text(item.label),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                  VerticalDivider(thickness: 1, width: 1),
+                  // This is the main content.
+                  Expanded(
+                    child: body,
+                  ),
+                ],
               ),
-              AudioControllerWidget(),
-              ValueListenableBuilder(
-                builder: (BuildContext context, Episode episode, Widget child) {
-                  if (episode != null &&
-                      episode.timestamps != null &&
-                      episode.timestamps.keys.length > 0)
-                    return MusicPreviewWidget(timestamps: episode.timestamps);
-                  return Container();
+        bottomNavigationBar: kIsWeb
+            ? null
+            : ValueListenableBuilder(
+                valueListenable: playerExpandProgress,
+                child: BottomNavigationBar(
+                  items: navigationIcons
+                      .map(
+                        (item) => BottomNavigationBarItem(
+                          icon: item.icon,
+                          label: item.label,
+                        ),
+                      )
+                      .toList(),
+                  currentIndex: _selectedIndex,
+                  selectedItemColor: Colors.blue,
+                  onTap: onNavigationTap,
+                ),
+                builder: (BuildContext context, double height, Widget child) {
+                  final value = percentageFromValueInRange(
+                      min: playerMinHeight,
+                      max: playerMaxHeight,
+                      value: height);
+
+                  if (value == null) return child;
+                  var opacity = 1 - value;
+                  if (opacity < 0) opacity = 0;
+                  if (opacity > 1) opacity = 1;
+
+                  return SizedBox(
+                    height: kBottomNavigationBarHeight -
+                        kBottomNavigationBarHeight * value,
+                    child: Transform.translate(
+                      offset:
+                          Offset(0.0, kBottomNavigationBarHeight * value * 0.5),
+                      child: Opacity(
+                        opacity: opacity,
+                        child: child,
+                      ),
+                    ),
+                  );
                 },
-                valueListenable: currentlyPlaying,
               ),
-            ],
-          ),
-        ),
-        bottomNavigationBar: ValueListenableBuilder(
-          valueListenable: playerExpandProgress,
-          child: BottomNavigationBar(
-            items: <BottomNavigationBarItem>[
-              BottomNavigationBarItem(
-                icon: Icon(Icons.home_outlined),
-                label: 'Feed',
-              ),
-              BottomNavigationBarItem(
-                icon: Icon(Icons.library_books_outlined),
-                label: "Library",
-              ),
-            ],
-            currentIndex: _selectedIndex,
-            selectedItemColor: Colors.blue,
-            onTap: (index) {
-              if (index == _selectedIndex) {
-                final NavigatorState navigator =
-                    _navigatorKeys[index].currentState;
-                if (navigator.canPop())
-                  while (navigator.canPop()) navigator.pop();
-                else {
-                  if (index == 0)
-                    mainScreenController.animateTo(
-                      0,
-                      duration: Duration(milliseconds: 300),
-                      curve: Curves.easeIn,
-                    );
-                }
-              } else
-                setState(() {
-                  _selectedIndex = index;
-                });
-            },
-          ),
-          builder: (BuildContext context, double height, Widget child) {
-            final value = percentageFromValueInRange(
-                min: playerMinHeight, max: playerMaxHeight, value: height);
-
-            if (value == null) return child;
-            var opacity = 1 - value;
-            if (opacity < 0) opacity = 0;
-            if (opacity > 1) opacity = 1;
-
-            return SizedBox(
-              height: kBottomNavigationBarHeight -
-                  kBottomNavigationBarHeight * value,
-              child: Transform.translate(
-                offset: Offset(0.0, kBottomNavigationBarHeight * value * 0.5),
-                child: Opacity(
-                  opacity: opacity,
-                  child: child,
-                ),
-              ),
-            );
-          },
-        ),
       ),
     );
   }
+
+  void onNavigationTap(final int index) {
+    if (index == _selectedIndex) {
+      final NavigatorState navigator = navigationIcons[index].key.currentState;
+      if (navigator.canPop())
+        while (navigator.canPop()) navigator.pop();
+      else {
+        if (index == 0)
+          mainScreenController.animateTo(
+            0,
+            duration: Duration(milliseconds: 300),
+            curve: Curves.easeIn,
+          );
+      }
+    } else
+      setState(() {
+        _selectedIndex = index;
+      });
+  }
+
+  List<NavigationItem> get navigationIcons {
+    if (kIsWeb) return navigationIconsWeb;
+    return navigationIconsMobile;
+  }
+}
+
+class NavigationItem {
+  final String label;
+  final Icon icon;
+  final key = GlobalKey();
+  final Widget child;
+
+  NavigationItem(this.icon, this.label, this.child);
 }

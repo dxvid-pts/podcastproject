@@ -1,5 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
+import 'package:url_launcher/url_launcher.dart' as webLauncher;
 
 class Podcast {
   String title, author, img, description, url, language, link;
@@ -69,27 +71,34 @@ String intToMonth(final int m) {
 }
 
 void openLinkInBrowser(BuildContext context, final String url) async {
-  try {
-    await launch(
-      url,
-      option: CustomTabsOption(
-        toolbarColor: Theme.of(context).primaryColor,
-        enableDefaultShare: true,
-        enableUrlBarHiding: true,
-        showPageTitle: true,
-        animation: CustomTabsAnimation.slideIn(),
-        extraCustomTabs: <String>[
-          // ref. https://play.google.com/store/apps/details?id=org.mozilla.firefox
-          'org.mozilla.firefox',
-          // ref. https://play.google.com/store/apps/details?id=com.microsoft.emmx
-          'com.microsoft.emmx',
-        ],
-      ),
-    );
-  } catch (e) {
+  if (kIsWeb) {
+    if (await webLauncher.canLaunch(url)) {
+      await webLauncher.launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
+  } else
+    try {
+      await launch(
+        url,
+        option: CustomTabsOption(
+          toolbarColor: Theme.of(context).primaryColor,
+          enableDefaultShare: true,
+          enableUrlBarHiding: true,
+          showPageTitle: true,
+          animation: CustomTabsAnimation.slideIn(),
+          extraCustomTabs: <String>[
+            // ref. https://play.google.com/store/apps/details?id=org.mozilla.firefox
+            'org.mozilla.firefox',
+            // ref. https://play.google.com/store/apps/details?id=com.microsoft.emmx
+            'com.microsoft.emmx',
+          ],
+        ),
+      );
+    } catch (e) {
 // An exception is thrown if browser app is not installed on Android device.
-    debugPrint(e.toString());
-  }
+      debugPrint(e.toString());
+    }
 }
 
 class History {
