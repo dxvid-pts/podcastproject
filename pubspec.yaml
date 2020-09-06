@@ -22,13 +22,13 @@ dependencies:
   just_audio: ^0.2.2
   positioned_tap_detector: ^1.0.3
   flutter_html: ^1.0.2
-  marquee: ^1.5.3
+  marquee: ^1.6.0
   flutter_custom_tabs: ^0.6.0
   flutter_downloader: ^1.5.0
   image: ^2.1.14
   flutter_cache_manager: ^1.4.1
   google_fonts: ^1.1.0
-  xml: ^4.4.1
+  xml: ^4.5.0
   file_picker: ^1.13.3
   progress_dialog: ^1.2.4
   permission_handler: ^5.0.1+1
