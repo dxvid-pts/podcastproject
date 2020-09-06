@@ -697,7 +697,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
     playPause();
   }
 
-  // Handle a phone call or other interruption -> read settings
+  /*// Handle a phone call or other interruption -> read settings
   @override
   Future<void> onAudioFocusLost(AudioInterruption interruption) async {
     var opt = settings['audio_behaviour'];
@@ -716,7 +716,7 @@ class AudioPlayerTask extends BackgroundAudioTask {
   @override
   Future<void> onAudioFocusGained(AudioInterruption interruption) async {
     if (getSetting('audio_behaviour') ?? 0 == 1) _audioPlayer.setVolume(1);
-  }
+  }*/
 
   Stream functionAsRepeatedStream(
       Function function, Duration duration, int n) async* {

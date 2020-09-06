@@ -21,6 +21,7 @@ class OptimizedImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (kIsWeb) return Image.network(url);
     if (_ram.containsKey(url)) {
       if (onTap == null)
         return Image.memory(_ram[url]);
@@ -29,7 +30,8 @@ class OptimizedImage extends StatelessWidget {
         return Container(
           height: defaultImageSize,
           width: defaultImageSize,
-          child: Ink.image(fit: BoxFit.cover,
+          child: Ink.image(
+            fit: BoxFit.cover,
             image: MemoryImage(_ram[url]),
             child: InkWell(
               onTap: onTap,
@@ -55,7 +57,10 @@ class OptimizedImage extends StatelessWidget {
                 ),
               );
           } else
-            return InkWell(child: Skeleton(width: 60), onTap: onTap,);
+            return InkWell(
+              child: Skeleton(width: 60),
+              onTap: onTap,
+            );
         },
       ),
     );

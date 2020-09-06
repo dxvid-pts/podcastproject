@@ -59,7 +59,7 @@ void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   loadPodcasts();
-  loadDownloadedFiles();
+  if (!kIsWeb) loadDownloadedFiles();
 }
 
 class MyApp extends StatelessWidget {
