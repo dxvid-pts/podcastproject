@@ -1,14 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:podcast_player/main.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/settings_section_widget.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-
 import '../analyzer.dart';
 
 const Color greyAccent = const Color(0x09000000);
@@ -17,13 +15,18 @@ const double paddingHorizontal = 26;
 class SettingsScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: kIsWeb
-          ? null
-          : AppBar(
-              title: Text('Settings'),
-            ),
-      body: Column(
+    return ValueListenableBuilder(
+      builder: (context, _isMobile, body) {
+        return Scaffold(
+          appBar: !_isMobile
+              ? null
+              : AppBar(
+                  title: Text('Settings'),
+                ),
+          body: body,
+        );
+      },
+      child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Column(
@@ -31,9 +34,7 @@ class SettingsScreen extends StatelessWidget {
             children: [
               Padding(
                 padding: const EdgeInsets.only(
-                    left: paddingHorizontal,
-                    right: paddingHorizontal,
-                    top: 20),
+                    left: paddingHorizontal, right: paddingHorizontal, top: 20),
                 child: Text(
                   'Settings',
                   style: Theme.of(context)
@@ -157,8 +158,8 @@ class SettingsScreen extends StatelessWidget {
                       'Open-Source',
                     ),
                   ),
-                  onPressed: () => openLinkInBrowser(context,
-                      'https://github.com/peterscodee/podcastproject'),
+                  onPressed: () => openLinkInBrowser(
+                      context, 'https://github.com/peterscodee/podcastproject'),
                 )),
                 SizedBox(width: 10),
                 Expanded(
@@ -186,6 +187,7 @@ class SettingsScreen extends StatelessWidget {
           ),
         ],
       ),
+      valueListenable: isMobile,
     );
   }
 }

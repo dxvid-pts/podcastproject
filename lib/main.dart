@@ -45,6 +45,9 @@ int podcastCount;
 
 bool firstEpisodeLoadedFromSP = false;
 
+ValueNotifier<bool> isMobile = ValueNotifier(true);
+const double mobileWidth = 500;
+
 void main() {
   LicenseRegistry.addLicense(() async* {
     final license = await rootBundle.loadString('assets/google_fonts/OFL.txt');
@@ -74,7 +77,7 @@ class MyApp extends StatelessWidget {
           unselectedLabelStyle: GoogleFonts.lexendDeca(),
         ),
       ),
-      home: App(),
+      home: AudioServiceWidget(child: App()),
     );
   }
 }
@@ -89,6 +92,7 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   int _selectedIndex = 0;
   final ScrollController mainScreenController = ScrollController();
+  bool _isMobile = true;
 
   List<NavigationItem> navigationIconsMobile;
   List<NavigationItem> navigationIconsWeb;
@@ -101,47 +105,24 @@ class _AppState extends State<App> {
       NavigationItem(
           const Icon(Icons.library_books_outlined), 'Library', LibraryScreen()),
     ];
-    if (kIsWeb)
-      navigationIconsWeb = [
-        ...navigationIconsMobile,
-        NavigationItem(Icon(PodcastIcons.vector), 'Settings', SettingsScreen()),
-      ];
+    navigationIconsWeb = [
+      ...navigationIconsMobile,
+      NavigationItem(Icon(PodcastIcons.vector), 'Settings', SettingsScreen()),
+    ];
 
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    final body = AudioServiceWidget(
-      child: Stack(
-        alignment: Alignment.bottomCenter,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(/*bottom: miniplayerHeight*/),
-            child: IndexedStack(
-              index: _selectedIndex,
-              children: navigationIcons
-                  .map((item) => NavigatorPage(
-                        navigatorKey: item.key,
-                        child: item.child,
-                      ))
-                  .toList(),
-            ),
-          ),
-          AudioControllerWidget(),
-          if (!kIsWeb)
-            ValueListenableBuilder(
-              builder: (BuildContext context, Episode episode, Widget child) {
-                if (episode != null &&
-                    episode.timestamps != null &&
-                    episode.timestamps.keys.length > 0)
-                  return MusicPreviewWidget(timestamps: episode.timestamps);
-                return Container();
-              },
-              valueListenable: currentlyPlaying,
-            ),
-        ],
-      ),
+    final body = IndexedStack(
+      index: _selectedIndex,
+      children: navigationIcons
+          .map((item) => NavigatorPage(
+                navigatorKey: item.key,
+                child: item.child,
+              ))
+          .toList(),
     );
 
     return WillPopScope(
@@ -153,73 +134,106 @@ class _AppState extends State<App> {
 
         return false;
       },
-      child: Scaffold(
-        body: !kIsWeb
-            ? body
-            : Row(
-                children: [
-                  NavigationRail(
-                    selectedIndex: _selectedIndex,
-                    onDestinationSelected: onNavigationTap,
-                    labelType: NavigationRailLabelType.all,
-                    destinations: navigationIcons
-                        .map(
-                          (item) => NavigationRailDestination(
-                            icon: item.icon,
-                            label: Text(item.label),
-                          ),
-                        )
-                        .toList(),
-                  ),
-                  VerticalDivider(thickness: 1, width: 1),
-                  // This is the main content.
-                  Expanded(
-                    child: body,
-                  ),
-                ],
-              ),
-        bottomNavigationBar: kIsWeb
-            ? null
-            : ValueListenableBuilder(
-                valueListenable: playerExpandProgress,
-                child: BottomNavigationBar(
-                  items: navigationIcons
-                      .map(
-                        (item) => BottomNavigationBarItem(
-                          icon: item.icon,
-                          label: item.label,
+      child: LayoutBuilder(
+        builder: (context, constrains) {
+          print(constrains.maxWidth);
+          _isMobile = constrains.maxWidth <= mobileWidth;
+          if (_isMobile != isMobile.value) isMobile.value = _isMobile;
+
+          return Scaffold(
+            body: _isMobile
+                ? Stack(
+                    alignment: Alignment.bottomCenter,
+                    children: [
+                      body,
+                      AudioControllerWidget(),
+                      if (!kIsWeb)
+                        ValueListenableBuilder(
+                          builder: (BuildContext context, Episode episode,
+                              Widget child) {
+                            if (episode != null &&
+                                episode.timestamps != null &&
+                                episode.timestamps.keys.length > 0)
+                              return MusicPreviewWidget(
+                                  timestamps: episode.timestamps);
+                            return Container();
+                          },
+                          valueListenable: currentlyPlaying,
                         ),
-                      )
-                      .toList(),
-                  currentIndex: _selectedIndex,
-                  selectedItemColor: Colors.blue,
-                  onTap: onNavigationTap,
-                ),
-                builder: (BuildContext context, double height, Widget child) {
-                  final value = percentageFromValueInRange(
-                      min: playerMinHeight,
-                      max: playerMaxHeight,
-                      value: height);
-
-                  if (value == null) return child;
-                  var opacity = 1 - value;
-                  if (opacity < 0) opacity = 0;
-                  if (opacity > 1) opacity = 1;
-
-                  return SizedBox(
-                    height: kBottomNavigationBarHeight -
-                        kBottomNavigationBarHeight * value,
-                    child: Transform.translate(
-                      offset:
-                          Offset(0.0, kBottomNavigationBarHeight * value * 0.5),
-                      child: Opacity(
-                        opacity: opacity,
-                        child: child,
+                    ],
+                  )
+                : Column(
+                    children: [
+                      Expanded(
+                        child: Row(
+                          children: [
+                            NavigationRail(
+                              selectedIndex: _selectedIndex,
+                              onDestinationSelected: onNavigationTap,
+                              labelType: NavigationRailLabelType.all,
+                              destinations: navigationIcons
+                                  .map(
+                                    (item) => NavigationRailDestination(
+                                      icon: item.icon,
+                                      label: Text(item.label),
+                                    ),
+                                  )
+                                  .toList(),
+                            ),
+                            VerticalDivider(thickness: 1, width: 1),
+                            // This is the main content.
+                            Expanded(child: body),
+                          ],
+                        ),
                       ),
+                      AudioControllerWidget(isMobile: false),
+                    ],
+                  ),
+            bottomNavigationBar: !_isMobile
+                ? null
+                : ValueListenableBuilder(
+                    valueListenable: playerExpandProgress,
+                    child: BottomNavigationBar(
+                      items: navigationIcons
+                          .map(
+                            (item) => BottomNavigationBarItem(
+                              icon: item.icon,
+                              label: item.label,
+                            ),
+                          )
+                          .toList(),
+                      currentIndex: _selectedIndex,
+                      selectedItemColor: Colors.blue,
+                      onTap: onNavigationTap,
                     ),
-                  );
-                },
-              ),
+                    builder:
+                        (BuildContext context, double height, Widget child) {
+                      final value = percentageFromValueInRange(
+                          min: playerMinHeight,
+                          max: playerMaxHeight,
+                          value: height);
+
+                      if (value == null) return child;
+                      var opacity = 1 - value;
+                      if (opacity < 0) opacity = 0;
+                      if (opacity > 1) opacity = 1;
+
+                      return SizedBox(
+                        height: kBottomNavigationBarHeight -
+                            kBottomNavigationBarHeight * value,
+                        child: Transform.translate(
+                          offset: Offset(
+                              0.0, kBottomNavigationBarHeight * value * 0.5),
+                          child: Opacity(
+                            opacity: opacity,
+                            child: child,
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+          );
+        },
       ),
     );
   }
@@ -244,7 +258,7 @@ class _AppState extends State<App> {
   }
 
   List<NavigationItem> get navigationIcons {
-    if (kIsWeb) return navigationIconsWeb;
+    if (!_isMobile) return navigationIconsWeb;
     return navigationIconsMobile;
   }
 }

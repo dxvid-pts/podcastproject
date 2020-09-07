@@ -25,6 +25,11 @@ const double playerMaxHeight = 370;
 const double miniplayerPercentage = 0.3;
 
 class AudioControllerWidget extends StatefulWidget {
+  final bool isMobile;
+
+  const AudioControllerWidget({Key key, this.isMobile = true})
+      : super(key: key);
+
   @override
   _AudioControllerWidgetState createState() => _AudioControllerWidgetState();
 }
@@ -117,290 +122,280 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return currentEpisode == null
-        ? Container(
-            height: 0,
-          )
-        : Miniplayer(
-            minHeight: playerMinHeight,
-            maxHeight: playerMaxHeight,
-            valueNotifier: playerExpandProgress,
-            /*onDragDown: () {
+    if (currentEpisode == null) return Container(height: 0);
+
+    final durationStream = AudioService.currentMediaItemStream.map((mediaItem) {
+      if (mediaItem != null) return mediaItem.duration.inSeconds;
+    });
+    final img = OptimizedImage(url: podcasts[currentEpisode.podcastUrl].img);
+    final text = Text(currentEpisode.title);
+    final buttonPlay = isPlaying == null
+        ? Container()
+        : IconButton(
+            icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
+            onPressed: () {
+              isPlaying ? AudioService.pause() : AudioService.play();
+              setState(() {
+                isPlaying = !isPlaying;
+              });
+            },
+          );
+
+    if (!widget.isMobile)
+      return SizedBox(
+        height: 100,
+        child: Column(
+          children: [
+            /*AudioProgressSlider(
+              progressStream: positionUpdateStream,
+              durationStream: durationStream,
+              miniplayer: false,
+            ),*/
+            Slider(
+              value: 0.2,
+              onChanged: (_) {},
+            ),
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.all(10),
+                    child: img,
+                  ),
+                  Expanded(child: buttonPlay),
+                  text,
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+
+    return Miniplayer(
+      minHeight: playerMinHeight,
+      maxHeight: playerMaxHeight,
+      valueNotifier: playerExpandProgress,
+      /*onDragDown: () {
               currentlyPlaying.value = null;
               AudioService.stop();
             },*/
-            builder: (height, percentage) {
-              final bool miniplayer = percentage < miniplayerPercentage;
-              final double width = MediaQuery.of(context).size.width;
-              final maxImgSize = width * 0.4;
+      builder: (height, percentage) {
+        final bool miniplayer = percentage < miniplayerPercentage;
+        final double width = MediaQuery.of(context).size.width;
+        final maxImgSize = width * 0.4;
 
-              //final img = Image.network(podcasts[currentEpisode.podcastUrl].img);
-              final img =
-                  OptimizedImage(url: podcasts[currentEpisode.podcastUrl].img);
-              final text = Text(currentEpisode.title);
-              final buttonPlay = isPlaying == null
-                  ? Container()
-                  : IconButton(
-                      icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-                      onPressed: () {
-                        isPlaying ? AudioService.pause() : AudioService.play();
-                        setState(() {
-                          isPlaying = !isPlaying;
-                        });
-                      },
-                    );
-              final progressIndicator = AudioProgressSlider(
-                progressStream: positionUpdateStream,
-                durationStream:
-                    // ignore: missing_return
-                    AudioService.currentMediaItemStream.map((mediaItem) {
-                  if (mediaItem != null) return mediaItem.duration.inSeconds;
-                }),
-                miniplayer: miniplayer,
-              );
+        final progressIndicator = AudioProgressSlider(
+          progressStream: positionUpdateStream,
+          durationStream: durationStream,
+          miniplayer: miniplayer,
+        );
 
-              if (!miniplayer) {
-                //Declare additional widgets (eg. SkipButton) and variables
+        if (!miniplayer) {
+          //Declare additional widgets (eg. SkipButton) and variables
 
-                var percentageExpandedPlayer = percentageFromValueInRange(
-                    min: playerMaxHeight * miniplayerPercentage +
-                        playerMinHeight,
-                    max: playerMaxHeight,
-                    value: height);
-                if (percentageExpandedPlayer < 0) percentageExpandedPlayer = 0;
-                final paddingVertical = valueFromPercentageInRange(
-                    min: 0, max: 10, percentage: percentageExpandedPlayer);
-                final double heightWithoutPadding =
-                    height - paddingVertical * 2;
-                final double imageSize = heightWithoutPadding > maxImgSize
-                    ? maxImgSize
-                    : heightWithoutPadding;
-                final paddingLeft = valueFromPercentageInRange(
-                      min: 0,
-                      max: width - imageSize,
-                      percentage: percentageExpandedPlayer,
-                    ) /
-                    2;
+          var percentageExpandedPlayer = percentageFromValueInRange(
+              min: playerMaxHeight * miniplayerPercentage + playerMinHeight,
+              max: playerMaxHeight,
+              value: height);
+          if (percentageExpandedPlayer < 0) percentageExpandedPlayer = 0;
+          final paddingVertical = valueFromPercentageInRange(
+              min: 0, max: 10, percentage: percentageExpandedPlayer);
+          final double heightWithoutPadding = height - paddingVertical * 2;
+          final double imageSize = heightWithoutPadding > maxImgSize
+              ? maxImgSize
+              : heightWithoutPadding;
+          final paddingLeft = valueFromPercentageInRange(
+                min: 0,
+                max: width - imageSize,
+                percentage: percentageExpandedPlayer,
+              ) /
+              2;
 
-                // print('width $width');
-                // print('padding $paddingLeft');
-                // print('add ${paddingLeft * 2 + imageSize}');
-
-                final buttonSkipForward = IconButton(
-                  icon: Icon(Icons.forward_30),
-                  iconSize: 33,
+          final buttonSkipForward = IconButton(
+            icon: Icon(Icons.forward_30),
+            iconSize: 33,
+            onPressed: () {
+              AudioService.fastForward();
+            },
+          );
+          final buttonSkipBackwards = IconButton(
+            icon: Icon(Icons.replay_10),
+            iconSize: 33,
+            onPressed: () {
+              AudioService.rewind();
+            },
+          );
+          final buttonPlayExpanded = isPlaying == null
+              ? Container()
+              : IconButton(
+                  icon: Icon(isPlaying
+                      ? Icons.pause_circle_filled
+                      : Icons.play_circle_filled),
+                  iconSize: 50,
                   onPressed: () {
-                    AudioService.fastForward();
+                    isPlaying ? AudioService.pause() : AudioService.play();
+                    setState(() {
+                      isPlaying = !isPlaying;
+                    });
                   },
                 );
-                final buttonSkipBackwards = IconButton(
-                  icon: Icon(Icons.replay_10),
-                  iconSize: 33,
-                  onPressed: () {
-                    AudioService.rewind();
-                  },
-                );
-                final buttonPlayExpanded = isPlaying == null
-                    ? Container()
-                    : IconButton(
-                        icon: Icon(isPlaying
-                            ? Icons.pause_circle_filled
-                            : Icons.play_circle_filled),
-                        iconSize: 50,
-                        onPressed: () {
-                          isPlaying
-                              ? AudioService.pause()
-                              : AudioService.play();
-                          setState(() {
-                            isPlaying = !isPlaying;
-                          });
-                        },
-                      );
 
-                return Container(
-                  decoration: new BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: new BorderRadius.only(
-                        topLeft: const Radius.circular(15),
-                        topRight: const Radius.circular(15),
-                      )),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: Column(
-                      children: [
-                        Align(
-                          alignment: Alignment.centerLeft,
-                          child: Padding(
-                            padding: EdgeInsets.only(
-                                left: paddingLeft,
-                                top: paddingVertical,
-                                bottom: paddingVertical),
-                            child: SizedBox(
-                              height: imageSize,
-                              child: img,
-                            ),
-                          ),
-                        ),
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 33),
-                            child: Opacity(
-                              opacity: percentageExpandedPlayer > 1
-                                  ? 1
-                                  : percentageExpandedPlayer < 0
-                                      ? 0
-                                      : percentageExpandedPlayer,
-                              child: Column(
-                                children: [
-                                  text,
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      buttonSkipBackwards,
-                                      buttonPlayExpanded,
-                                      buttonSkipForward
-                                    ],
-                                  ),
-                                  progressIndicator,
-                                  /*RaisedButton(
-                                    child: Text('open description'),
-                                    onPressed: () =>
-                                        openDescription.value = currentEpisode,
-                                  )*/
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-                        /* Expanded(
-                          child: DraggableScrollableSheet(
-                            initialChildSize: 0.5,
-                            minChildSize: 0.2,
-                            maxChildSize: 1,
-                            builder: (BuildContext context,
-                                ScrollController scrollController) {
-                              return Container(
-                                  color: Colors.green,
-                                  child: Html(data: currentEpisode.description));
-                              /*return Container(
-                                color: Colors.blue[100],
-                                child: ListView.builder(
-                                  controller: scrollController,
-                                  itemCount: 25,
-                                  itemBuilder: (BuildContext context, int index) {
-                                    return ListTile(title: Text('Item $index'));
-                                  },
-                                ),
-                              );*/
-                            },
-                          ),
-                        ),*/
-                      ],
+          return Container(
+            decoration: new BoxDecoration(
+                color: Colors.white,
+                borderRadius: new BorderRadius.only(
+                  topLeft: const Radius.circular(15),
+                  topRight: const Radius.circular(15),
+                )),
+            child: Material(
+              color: Colors.transparent,
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.centerLeft,
+                    child: Padding(
+                      padding: EdgeInsets.only(
+                          left: paddingLeft,
+                          top: paddingVertical,
+                          bottom: paddingVertical),
+                      child: SizedBox(
+                        height: imageSize,
+                        child: img,
+                      ),
                     ),
                   ),
-                );
-              }
-              //Miniplayer
-              final percentageMiniplayer = percentageFromValueInRange(
-                  min: playerMinHeight,
-                  max: playerMaxHeight * miniplayerPercentage + playerMinHeight,
-                  value: height);
-              var elementOpacity = 1 - 1 * percentageMiniplayer;
-              if (elementOpacity > 1) elementOpacity = 1;
-              if (elementOpacity < 0) elementOpacity = 0;
-              final prgressIndicatorHeight = 4 - 4 * percentageMiniplayer;
-
-              return Material(
-                child: Container(
-                  decoration: BoxDecoration(
-                    boxShadow: <BoxShadow>[
-                      BoxShadow(
-                          color: Colors.black38,
-                          blurRadius: 8,
-                          offset: Offset(0.0, 4))
-                    ],
-                    color: Colors.white,
-                  ),
-                  child: Column(
-                    children: [
-                      Expanded(
-                        child: Row(
+                  Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 33),
+                      child: Opacity(
+                        opacity: percentageExpandedPlayer > 1
+                            ? 1
+                            : percentageExpandedPlayer < 0
+                                ? 0
+                                : percentageExpandedPlayer,
+                        child: Column(
                           children: [
-                            ConstrainedBox(
-                              constraints:
-                                  BoxConstraints(maxHeight: maxImgSize),
-                              child: img,
+                            text,
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                buttonSkipBackwards,
+                                buttonPlayExpanded,
+                                buttonSkipForward
+                              ],
                             ),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(left: 10),
-                                child: Opacity(
-                                  opacity: elementOpacity,
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      SizedBox(
-                                        height: 22,
-                                        child: Marquee(
-                                          text: currentEpisode.title,
-                                          blankSpace: 20,
-                                          pauseAfterRound: Duration(seconds: 5),
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .bodyText2
-                                              .copyWith(fontSize: 16),
-                                        ),
-                                      ),
-                                      Text(
-                                        podcasts[currentEpisode.podcastUrl]
-                                            .title,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodyText2
-                                            .copyWith(
-                                                color: Colors.black
-                                                    .withOpacity(0.55)),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.only(right: 3),
-                              child: Opacity(
-                                opacity: elementOpacity,
-                                child: buttonPlay,
-                              ),
-                            ),
+                            progressIndicator,
                           ],
                         ),
                       ),
-                      SizedBox(
-                        height: prgressIndicatorHeight,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+        //Miniplayer
+        final percentageMiniplayer = percentageFromValueInRange(
+            min: playerMinHeight,
+            max: playerMaxHeight * miniplayerPercentage + playerMinHeight,
+            value: height);
+        var elementOpacity = 1 - 1 * percentageMiniplayer;
+        if (elementOpacity > 1) elementOpacity = 1;
+        if (elementOpacity < 0) elementOpacity = 0;
+        final prgressIndicatorHeight = 4 - 4 * percentageMiniplayer;
+
+        return Material(
+          child: Container(
+            decoration: BoxDecoration(
+              boxShadow: <BoxShadow>[
+                BoxShadow(
+                    color: Colors.black38,
+                    blurRadius: 8,
+                    offset: Offset(0.0, 4))
+              ],
+              color: Colors.white,
+            ),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Row(
+                    children: [
+                      ConstrainedBox(
+                        constraints: BoxConstraints(maxHeight: maxImgSize),
+                        child: img,
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 10),
+                          child: Opacity(
+                            opacity: elementOpacity,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                SizedBox(
+                                  height: 22,
+                                  child: Marquee(
+                                    text: currentEpisode.title,
+                                    blankSpace: 20,
+                                    pauseAfterRound: Duration(seconds: 5),
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .bodyText2
+                                        .copyWith(fontSize: 16),
+                                  ),
+                                ),
+                                Text(
+                                  podcasts[currentEpisode.podcastUrl].title,
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .bodyText2
+                                      .copyWith(
+                                          color:
+                                              Colors.black.withOpacity(0.55)),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(right: 3),
                         child: Opacity(
                           opacity: elementOpacity,
-                          child: progressIndicator,
+                          child: buttonPlay,
                         ),
                       ),
                     ],
                   ),
                 ),
-              );
-            },
-          );
+                SizedBox(
+                  height: prgressIndicatorHeight,
+                  child: Opacity(
+                    opacity: elementOpacity,
+                    child: progressIndicator,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+      },
+    );
   }
 
   void startAudioService() async {
+    print('aaa');
     //TODO: Necessary?
-    await AudioService.stop();
-    Future.delayed(Duration(milliseconds: 500));
+    //await AudioService.stop();
+    //Future.delayed(Duration(milliseconds: 500));
 
+    print('bbb');
     await AudioService.start(
       backgroundTaskEntrypoint: _audioPlayerTaskEntrypoint,
       androidNotificationChannelName: 'Audio Service Demo',
