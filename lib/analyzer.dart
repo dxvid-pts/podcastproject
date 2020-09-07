@@ -206,6 +206,8 @@ List podcastFromXmlOnIsolate(List<String> args) {
         zone = makeDateString('z', split[5].length);
       }
 
+      //print(data);
+      //print("$weekDay $day $month $year $time $zone");
       dateTime =
           DateFormat("$weekDay $day $month $year $time $zone").parse(data);
       //dateTime = DateFormat("EEE, dd MMM yyyy hh:mm:ss zzz").parse(e.findElements('pubDate').first.text);
