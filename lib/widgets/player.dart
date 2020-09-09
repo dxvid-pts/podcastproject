@@ -13,6 +13,7 @@ import 'package:podcast_player/image_handler.dart';
 import 'package:podcast_player/main.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/progress_slider_widget.dart';
+import 'package:podcast_player/widgets/volume_slider.dart';
 
 import '../analyzer.dart';
 
@@ -49,9 +50,11 @@ Stream<int> getProgressAsTimedStream(final Duration duration) async* {
 class _AudioControllerWidgetState extends State<AudioControllerWidget> {
   bool isPlaying;
   Episode currentEpisode;
+  FocusNode desktopSpaceNode = FocusNode();
 
   @override
   void initState() {
+    desktopSpaceNode.requestFocus();
     currentlyPlaying.addListener(() {
       Episode wasCurrentEp;
       setState(() {
@@ -140,35 +143,114 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
               });
             },
           );
+    final buttonSkipForward = IconButton(
+      icon: Icon(Icons.forward_30),
+      iconSize: 33,
+      onPressed: () {
+        AudioService.fastForward();
+      },
+    );
+    final buttonSkipBackwards = IconButton(
+      icon: Icon(Icons.replay_10),
+      iconSize: 33,
+      onPressed: () {
+        AudioService.rewind();
+      },
+    );
 
     if (!widget.isMobile)
       return SizedBox(
-        height: 100,
-        child: Column(
-          children: [
-            /*AudioProgressSlider(
-              progressStream: positionUpdateStream,
-              durationStream: durationStream,
-              miniplayer: false,
-            ),*/
-            Slider(
-              value: 0.2,
-              onChanged: (_) {},
-            ),
-            Expanded(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(10),
-                    child: img,
-                  ),
-                  Expanded(child: buttonPlay),
-                  text,
-                ],
+        height: 90,
+        child: RawKeyboardListener(
+          onKey: (keyEvent) {
+            //Space
+            if (keyEvent.logicalKey.keyId != 32) return;
+
+            desktopSpaceNode.unfocus();
+            Future.delayed(Duration(milliseconds: 500))
+                .then((value) => desktopSpaceNode.requestFocus());
+
+            if (isPlaying)
+              AudioService.pause();
+            else if (!isPlaying) AudioService.play();
+          },
+          focusNode: desktopSpaceNode,
+          child: Column(
+            verticalDirection: VerticalDirection.up,
+            children: [
+              Expanded(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Row(
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(10),
+                          child: img,
+                        ),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: Container()),
+                            Expanded(child: text),
+                            Expanded(
+                                child: StreamBuilder(
+                              stream: positionUpdateStream,
+                              builder: (_, progressSnapshot) {
+                                if (!progressSnapshot.hasData)
+                                  return Container();
+                                return Row(
+                                  children: [
+                                    Text(progressString(progressSnapshot.data)),
+                                    const Text(' / -'),
+                                    StreamBuilder(
+                                      stream: durationStream,
+                                      builder: (_, durationSnapshot) =>
+                                          !durationSnapshot.hasData
+                                              ? Container()
+                                              : Text(durationLeftString(
+                                                  durationSnapshot.data,
+                                                  progressSnapshot.data)),
+                                    ),
+                                  ],
+                                );
+                              },
+                            )),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Expanded(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          buttonSkipBackwards,
+                          buttonPlay,
+                          buttonSkipForward,
+                        ],
+                      ), //buttonPlay,
+                    ),
+                    Expanded(
+                      child: VolumeSlider(),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+              SizedBox(
+                height: 5,
+                child: SliderTheme(
+                  data: SliderThemeData(
+                    trackShape: CustomTrackShape(),
+                  ),
+                  child: Slider(
+                    value: 0.2,
+                    onChanged: (_) {},
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       );
 
@@ -212,20 +294,6 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
               ) /
               2;
 
-          final buttonSkipForward = IconButton(
-            icon: Icon(Icons.forward_30),
-            iconSize: 33,
-            onPressed: () {
-              AudioService.fastForward();
-            },
-          );
-          final buttonSkipBackwards = IconButton(
-            icon: Icon(Icons.replay_10),
-            iconSize: 33,
-            onPressed: () {
-              AudioService.rewind();
-            },
-          );
           final buttonPlayExpanded = isPlaying == null
               ? Container()
               : IconButton(
@@ -680,6 +748,16 @@ class AudioPlayerTask extends BackgroundAudioTask {
     await _audioPlayer.play();
   }
 
+  @override
+  Future onCustomAction(String name, arguments) async {
+    switch (name) {
+      case 'volume':
+        if (arguments is double) _audioPlayer.setVolume(arguments);
+
+        break;
+    }
+  }
+
   void playPause() {
     if (AudioServiceBackground.state.playing)
       onPause();
@@ -764,5 +842,22 @@ class AudioPlayerTask extends BackgroundAudioTask {
     int duration = (await _audioPlayer.durationFuture).inSeconds;
     if (startingPoint < duration && startingPoint > 0)
       _audioPlayer.seek(Duration(seconds: startingPoint));
+  }
+}
+
+class CustomTrackShape extends RoundedRectSliderTrackShape {
+  Rect getPreferredRect({
+    @required RenderBox parentBox,
+    Offset offset = Offset.zero,
+    @required SliderThemeData sliderTheme,
+    bool isEnabled = false,
+    bool isDiscrete = false,
+  }) {
+    final double trackHeight = 3;
+    final double trackLeft = offset.dx;
+    final double trackTop =
+        offset.dy + (parentBox.size.height - trackHeight) / 2;
+    final double trackWidth = parentBox.size.width;
+    return Rect.fromLTWH(trackLeft, trackTop, trackWidth, trackHeight);
   }
 }

@@ -166,3 +166,20 @@ String dateTimeToDayString(final DateTime date,
 
   return '${date.day} ${intToMonth(date.month)}$yearSuffix';
 }
+
+String progressString(final int _progress) {
+  final int progressMins = (_progress / 60).floor();
+  String progressSecs = (_progress - progressMins * 60).toString();
+  if (progressSecs.length < 2) progressSecs = '0' + progressSecs;
+
+  return '$progressMins:$progressSecs';
+}
+
+String durationLeftString(final int _duration, final int _progress) {
+  final int secondsLeft = _duration - _progress;
+  final int leftMins = (secondsLeft / 60).floor();
+  String leftSecs = (secondsLeft - leftMins * 60).toString();
+  if (leftSecs.length < 2) leftSecs = '0' + leftSecs;
+
+  return '$leftMins:$leftSecs';
+}

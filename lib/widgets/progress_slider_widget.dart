@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 
+import '../utils.dart';
+
 int savedProgress = 0;
 
 class AudioProgressSlider extends StatefulWidget {
@@ -73,14 +75,7 @@ class _AudioProgressSliderState extends State<AudioProgressSlider> {
   @override
   Widget build(BuildContext context) {
     if (!widget.miniplayer && !_loading) {
-      final int progressMins = (_progress / 60).floor();
-      String progressSecs = (_progress - progressMins * 60).toString();
-      if (progressSecs.length < 2) progressSecs = '0' + progressSecs;
-
-      final int secondsLeft = _duration - _progress;
-      final int leftMins = (secondsLeft / 60).floor();
-      String leftSecs = (secondsLeft - leftMins * 60).toString();
-      if (leftSecs.length < 2) leftSecs = '0' + leftSecs;
+      
 
       return Column(
         children: [
@@ -111,8 +106,8 @@ class _AudioProgressSliderState extends State<AudioProgressSlider> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('$progressMins:$progressSecs'),
-              Text('-$leftMins:$leftSecs'),
+              Text(progressString(_progress)),
+              Text('-${durationLeftString(_duration, _progress)}'),
             ],
           ),
         ],
