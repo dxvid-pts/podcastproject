@@ -194,23 +194,17 @@ List podcastFromXmlOnIsolate(List<String> args) {
         day = makeDateString('d', split[1].length);
       }
       if (split[2].length != month.length) {
-        month = makeDateString('M', split[2].length);
+        split[2] = split[2].substring(0, 3);
       }
       if (split[3].length != year.length) {
         year = makeDateString('y', split[3].length);
       }
-      /*if (split[4].length != time.length) {
-        time = makeDateString('E', split[4].length);
-      }*/
       if (split[5].length != zone.length) {
         zone = makeDateString('z', split[5].length);
       }
 
-      //print(data);
-      //print("$weekDay $day $month $year $time $zone");
-      dateTime =
-          DateFormat("$weekDay $day $month $year $time $zone").parse(data);
-      //dateTime = DateFormat("EEE, dd MMM yyyy hh:mm:ss zzz").parse(e.findElements('pubDate').first.text);
+      dateTime = DateFormat("$weekDay $day $month $year $time $zone").parse(
+          "${split[0]} ${split[1]} ${split[2]} ${split[3]} ${split[4]} ${split[5]}");
     } catch (e) {
       print(e);
     }
@@ -303,6 +297,7 @@ String getValue(List<ExtractFunction> functions) {
     if (ram == null) continue;
     return ram;
   }
+  return null;
 }
 
 String getXmlValue(Function function) {

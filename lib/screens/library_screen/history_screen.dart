@@ -64,7 +64,6 @@ class HistoryDividedPart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    print(episodes.toString());
     return Column(
       children: [
         //Divider(),
