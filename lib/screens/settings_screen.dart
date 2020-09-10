@@ -1,7 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:html' as webFile;
+import 'package:flutter/foundation.dart';
 import 'package:podcast_player/main.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:file_picker_web/file_picker_web.dart' as webPicker;
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:podcast_player/utils.dart';
@@ -76,7 +79,7 @@ class SettingsScreen extends StatelessWidget {
                       children: [
                         OutlineButton(
                           onPressed: () async {
-                            if (!await Permission.storage.request().isGranted)
+                             if (!await Permission.storage.request().isGranted)
                               return;
 
                             final String dirPath =
@@ -108,29 +111,60 @@ class SettingsScreen extends StatelessWidget {
                         SizedBox(width: 10),
                         RaisedButton(
                           onPressed: () async {
-                            if (!await Permission.storage.request().isGranted)
-                              return;
+                            if (kIsWeb) {
+                              webFile.File file =
+                                  await webPicker.FilePicker.getFile(
+                                allowedExtensions: ['pd'],
+                                type: FileType.custom,
+                              );
 
-                            File file = await FilePicker.getFile(
-                              allowedExtensions: ['pd'],
-                              type: FileType.custom,
-                            );
-                            if (!file.path.endsWith('.pd')) return;
+                              final ProgressDialog pr = ProgressDialog(context);
+                              pr.style(
+                                  progressWidget: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                  message:
+                                      'Importing data from ${file.relativePath}');
 
-                            final ProgressDialog pr = ProgressDialog(context);
-                            pr.style(
-                                progressWidget: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.blue),
-                                ),
-                                message: 'Importing data from ${file.path}');
+                              await pr.show();
 
-                            await pr.show();
+                              print('import ${file.relativePath}');
 
-                            print('import ${file.path}');
-                            import(file.readAsStringSync());
+                              final reader = new webFile.FileReader();
+                              reader.readAsText(file);
+                              await reader.onLoad.first;
 
-                            await pr.hide();
+                              String data = reader.result;
+
+                              import(data);
+
+                              await pr.hide();
+                            } else {
+                              if (!await Permission.storage.request().isGranted)
+                                return;
+
+                              File file = await FilePicker.getFile(
+                                allowedExtensions: ['pd'],
+                                type: FileType.custom,
+                              );
+                              if (!file.path.endsWith('.pd')) return;
+
+                              final ProgressDialog pr = ProgressDialog(context);
+                              pr.style(
+                                  progressWidget: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                  message: 'Importing data from ${file.path}');
+
+                              await pr.show();
+
+                              print('import ${file.path}');
+                              import(file.readAsStringSync());
+
+                              await pr.hide();
+                            }
                           },
                           child: Text('Import app data'),
                         ),
