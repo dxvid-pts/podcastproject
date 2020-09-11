@@ -79,32 +79,56 @@ class SettingsScreen extends StatelessWidget {
                       children: [
                         OutlineButton(
                           onPressed: () async {
-                             if (!await Permission.storage.request().isGranted)
-                              return;
+                            if (kIsWeb) {
+                              final ProgressDialog pr = ProgressDialog(context);
+                              pr.style(
+                                  progressWidget: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                  message: 'Exporting data...');
 
-                            final String dirPath =
-                                await FilePicker.getDirectoryPath();
+                              await pr.show();
 
-                            final String filePath =
-                                dirPath + Platform.pathSeparator + 'data.pd';
+                              var blob = webFile.Blob(
+                                  [export()], 'text/plain', 'native');
 
-                            print(dirPath);
+                              var anchorElement = webFile.AnchorElement(
+                                  href:
+                                      webFile.Url.createObjectUrlFromBlob(blob)
+                                          .toString());
+                              await pr.hide();
+                              anchorElement
+                                ..setAttribute("download", "data.pd")
+                                ..click();
+                            } else {
+                              if (!await Permission.storage.request().isGranted)
+                                return;
 
-                            final ProgressDialog pr = ProgressDialog(context);
-                            pr.style(
-                                progressWidget: CircularProgressIndicator(
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.blue),
-                                ),
-                                message: 'Exporting data to $filePath');
+                              final String dirPath =
+                                  await FilePicker.getDirectoryPath();
 
-                            await pr.show();
+                              final String filePath =
+                                  dirPath + Platform.pathSeparator + 'data.pd';
 
-                            File file = File(filePath);
-                            file.createSync();
-                            file.writeAsStringSync(export());
+                              print(dirPath);
 
-                            await pr.hide();
+                              final ProgressDialog pr = ProgressDialog(context);
+                              pr.style(
+                                  progressWidget: CircularProgressIndicator(
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.blue),
+                                  ),
+                                  message: 'Exporting data to $filePath');
+
+                              await pr.show();
+
+                              File file = File(filePath);
+                              file.createSync();
+                              file.writeAsStringSync(export());
+
+                              await pr.hide();
+                            }
                           },
                           child: Text('Export app data'),
                         ),
@@ -112,7 +136,7 @@ class SettingsScreen extends StatelessWidget {
                         RaisedButton(
                           onPressed: () async {
                             if (kIsWeb) {
-                              webFile.File file =
+                              final webFile.File file =
                                   await webPicker.FilePicker.getFile(
                                 allowedExtensions: ['pd'],
                                 type: FileType.custom,
