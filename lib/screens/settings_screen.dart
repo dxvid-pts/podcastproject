@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:html' as webFile;
+
+//import 'dart:html' as webFile;
 import 'package:flutter/foundation.dart';
 import 'package:podcast_player/main.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:file_picker_web/file_picker_web.dart' as webPicker;
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:podcast_player/utils.dart';
@@ -80,7 +80,7 @@ class SettingsScreen extends StatelessWidget {
                         OutlineButton(
                           onPressed: () async {
                             if (kIsWeb) {
-                              final ProgressDialog pr = ProgressDialog(context);
+                              /*final ProgressDialog pr = ProgressDialog(context);
                               pr.style(
                                   progressWidget: CircularProgressIndicator(
                                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -100,13 +100,13 @@ class SettingsScreen extends StatelessWidget {
                               await pr.hide();
                               anchorElement
                                 ..setAttribute("download", "data.pd")
-                                ..click();
+                                ..click();*/
                             } else {
                               if (!await Permission.storage.request().isGranted)
                                 return;
 
                               final String dirPath =
-                                  await FilePicker.getDirectoryPath();
+                                  await FilePicker.platform.getDirectoryPath();
 
                               final String filePath =
                                   dirPath + Platform.pathSeparator + 'data.pd';
@@ -136,11 +136,14 @@ class SettingsScreen extends StatelessWidget {
                         RaisedButton(
                           onPressed: () async {
                             if (kIsWeb) {
-                              final webFile.File file =
-                                  await webPicker.FilePicker.getFile(
+                              var r = await FilePicker.platform.pickFiles(
+                                allowMultiple: false,
                                 allowedExtensions: ['pd'],
                                 type: FileType.custom,
                               );
+                              if (r == null) return;
+
+                              PlatformFile file = r.files.first;
 
                               final ProgressDialog pr = ProgressDialog(context);
                               pr.style(
@@ -148,30 +151,28 @@ class SettingsScreen extends StatelessWidget {
                                     valueColor: AlwaysStoppedAnimation<Color>(
                                         Colors.blue),
                                   ),
-                                  message:
-                                      'Importing data from ${file.relativePath}');
+                                  message: 'Importing data from ${file.path}');
 
                               await pr.show();
 
-                              print('import ${file.relativePath}');
+                              print('import ${file.path}');
 
-                              final reader = new webFile.FileReader();
-                              reader.readAsText(file);
-                              await reader.onLoad.first;
-
-                              String data = reader.result;
-
-                              import(data);
+                              import(String.fromCharCodes(file.bytes));
 
                               await pr.hide();
                             } else {
                               if (!await Permission.storage.request().isGranted)
                                 return;
 
-                              File file = await FilePicker.getFile(
+                              var r = await FilePicker.platform.pickFiles(
+                                allowMultiple: false,
                                 allowedExtensions: ['pd'],
                                 type: FileType.custom,
                               );
+                              if (r == null) return;
+
+                              File file = File(r.files.single.path);
+
                               if (!file.path.endsWith('.pd')) return;
 
                               final ProgressDialog pr = ProgressDialog(context);
