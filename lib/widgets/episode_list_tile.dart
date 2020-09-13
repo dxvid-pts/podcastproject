@@ -121,24 +121,25 @@ class EpisodeListTile extends StatelessWidget {
                 Text(episode.duration == null
                     ? '<NO DURATION>'
                     : '${episode.duration.inMinutes} minutes'),
-                ValueListenableBuilder(
-                  builder: (_, int _progress, child) {
-                    if (_progress > 0)
-                      return Row(
-                        children: [
-                          child,
-                          DownloadIcon(
-                            progress: _progress,
-                            iconSize: 15,
-                          ),
-                        ],
-                      );
-                    else
-                      return Container();
-                  },
-                  child: SeparatorWidget(),
-                  valueListenable: episodeDownloadStates[episode.audioUrl],
-                ),
+                if (episodeDownloadStates.containsKey(episode.audioUrl))
+                  ValueListenableBuilder(
+                    builder: (_, int _progress, child) {
+                      if (_progress > 0)
+                        return Row(
+                          children: [
+                            child,
+                            DownloadIcon(
+                              progress: _progress,
+                              iconSize: 15,
+                            ),
+                          ],
+                        );
+                      else
+                        return Container();
+                    },
+                    child: SeparatorWidget(),
+                    valueListenable: episodeDownloadStates[episode.audioUrl],
+                  ),
               ],
             ),
           ),
