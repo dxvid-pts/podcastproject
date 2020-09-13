@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:podcast_player/screens/settings_screen.dart';
+import 'package:podcast_player/screens/settings_screen/settings_screen.dart';
 
 import '../analyzer.dart';
 

@@ -1,16 +1,16 @@
 import 'dart:convert';
 import 'dart:io';
-
-//import 'dart:html' as webFile;
 import 'package:flutter/foundation.dart';
 import 'package:podcast_player/main.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:podcast_player/screens/settings_screen/export_interface.dart'
+    if (dart.library.html) 'package:podcast_player/screens/settings_screen/export_web.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/settings_section_widget.dart';
 import 'package:progress_dialog/progress_dialog.dart';
-import '../analyzer.dart';
+import '../../analyzer.dart';
 
 const Color greyAccent = const Color(0x09000000);
 const double paddingHorizontal = 26;
@@ -80,7 +80,7 @@ class SettingsScreen extends StatelessWidget {
                         OutlineButton(
                           onPressed: () async {
                             if (kIsWeb) {
-                              /*final ProgressDialog pr = ProgressDialog(context);
+                              final ProgressDialog pr = ProgressDialog(context);
                               pr.style(
                                   progressWidget: CircularProgressIndicator(
                                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -90,17 +90,8 @@ class SettingsScreen extends StatelessWidget {
 
                               await pr.show();
 
-                              var blob = webFile.Blob(
-                                  [export()], 'text/plain', 'native');
-
-                              var anchorElement = webFile.AnchorElement(
-                                  href:
-                                      webFile.Url.createObjectUrlFromBlob(blob)
-                                          .toString());
+                              saveExport();
                               await pr.hide();
-                              anchorElement
-                                ..setAttribute("download", "data.pd")
-                                ..click();*/
                             } else {
                               if (!await Permission.storage.request().isGranted)
                                 return;

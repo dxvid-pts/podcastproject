@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:podcast_player/screens/settings_screen.dart';
+import 'package:podcast_player/screens/settings_screen/settings_screen.dart';
 import 'package:podcast_player/widgets/episode_list_tile.dart';
 import 'package:podcast_player/widgets/text_dialog_widget.dart';
 import 'package:podcast_player/widgets/web_layout.dart';

@@ -9,7 +9,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:podcast_player/podcast_icons_icons.dart';
 import 'package:podcast_player/screens/main_screen.dart';
 import 'package:podcast_player/screens/library_screen/library_screen.dart';
-import 'package:podcast_player/screens/settings_screen.dart';
+import 'package:podcast_player/screens/settings_screen/settings_screen.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/music_preview_player_widget.dart';
 import 'package:podcast_player/widgets/navigator_page_widget.dart';
