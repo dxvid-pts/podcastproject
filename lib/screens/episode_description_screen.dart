@@ -1,4 +1,5 @@
 import 'package:animations/animations.dart';
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_html/flutter_html.dart';
@@ -6,6 +7,7 @@ import 'package:podcast_player/image_handler.dart';
 import 'package:podcast_player/screens/podcast_overview_screen.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/download_icon_widget.dart';
+import 'package:podcast_player/widgets/player.dart';
 import 'package:podcast_player/widgets/playlist_modal.dart';
 import 'package:podcast_player/widgets/web_layout.dart';
 
@@ -90,7 +92,36 @@ class EpisodeDescriptionScreen extends StatelessWidget {
                       });
                 },
               ),
-              PlayPause(),
+              StreamBuilder(
+                builder: (ctx, AsyncSnapshot<PlaybackState> snapshot) {
+                  print('rebuild');
+                  Icon icon = Icon(Icons.play_arrow);
+
+                  if (snapshot.hasData)
+                    icon = Icon(
+                        snapshot.data.playing ? Icons.pause : Icons.play_arrow);
+
+                  return IconButton(
+                      icon: icon,
+                      tooltip: 'Play/Pause',
+                      onPressed: () {
+                        if (!snapshot.hasData) {
+                          print('return');
+                          return;
+                        }
+
+                        if (currentlyPlaying.value == null)
+                          currentlyPlaying.value = episode;
+                        else {
+                          if (AudioService.playbackState.playing)
+                            AudioService.pause();
+                          else
+                            AudioService.play();
+                        }
+                      });
+                },
+                stream: AudioService.playbackStateStream,
+              ),
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(right: 20),
@@ -125,29 +156,6 @@ class EpisodeDescriptionScreen extends StatelessWidget {
             : Text(episode.title),
       ),
       body: !kIsWeb ? body : WebLayout(child: body),
-    );
-  }
-}
-
-class PlayPause extends StatefulWidget {
-  @override
-  _PlayPauseState createState() => _PlayPauseState();
-}
-
-//TODO: FIX Functionality
-class _PlayPauseState extends State<PlayPause> {
-  bool isPlaying = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return IconButton(
-      tooltip: 'Play/Pause',
-      icon: Icon(isPlaying ? Icons.pause : Icons.play_arrow),
-      onPressed: () {
-        setState(() {
-          isPlaying = !isPlaying;
-        });
-      },
     );
   }
 }
