@@ -160,7 +160,13 @@ class EpisodeListTile extends StatelessWidget {
                       );
                     },
                     valueListenable: episodeStates[episode.audioUrl],
-                    child: arrowIcon,
+                    child: Icon(
+                      Icons.play_arrow,
+                      size: 16,
+                      color: Theme.of(context).brightness == Brightness.dark
+                          ? progressedColorDark
+                          : progressedColor,
+                    ),
                   ),
                   onPressed: () {
                     currentlyPlaying.value = episode;

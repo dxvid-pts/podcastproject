@@ -2,13 +2,10 @@ import 'package:flutter/material.dart';
 
 const double size = 22;
 const Color progressedColor = const Color(0x44000000);
+const Color progressedColorDark = const Color(0x44FFFFFF);
 const Color startColor = const Color(0x66000000);
+const Color startColorDark = const Color(0x66FFFFFF);
 
-const arrowIcon = Icon(
-  Icons.play_arrow,
-  size: 16,
-  color: progressedColor,
-);
 const completedIcon = Icon(
   Icons.done,
   size: 20,
@@ -28,7 +25,9 @@ class EpisodeProgressIndicator extends StatelessWidget {
       return Icon(
         Icons.play_circle_outline,
         size: size + 7,
-        color: startColor,
+        color: Theme.of(context).brightness == Brightness.dark
+            ? startColorDark
+            : startColor,
       );
     return Stack(
       alignment: Alignment.center,
@@ -40,7 +39,9 @@ class EpisodeProgressIndicator extends StatelessWidget {
           child: CircularProgressIndicator(
             value: value >= 1 ? 0 : value,
             strokeWidth: 2.3,
-            backgroundColor: progressedColor,
+            backgroundColor: Theme.of(context).brightness == Brightness.dark
+                ? progressedColorDark
+                : progressedColor,
             valueColor: AlwaysStoppedAnimation<Color>(Colors.blue),
           ),
         ),
@@ -51,7 +52,7 @@ class EpisodeProgressIndicator extends StatelessWidget {
             child: Icon(
               Icons.done,
               size: 28,
-              color: Colors.white,
+              color: Theme.of(context).cardTheme.color,
             ),
           ),
         if (value >= 1)
