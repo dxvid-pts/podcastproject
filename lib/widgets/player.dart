@@ -258,10 +258,10 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
       minHeight: playerMinHeight,
       maxHeight: playerMaxHeight,
       valueNotifier: playerExpandProgress,
-      /*onDragDown: () {
-              currentlyPlaying.value = null;
-              AudioService.stop();
-            },*/
+      onDismiss: () {
+        currentlyPlaying.value = null;
+        AudioService.stop();
+      },
       builder: (height, percentage) {
         final bool miniplayer = percentage < miniplayerPercentage;
         final double width = MediaQuery.of(context).size.width;
@@ -310,12 +310,13 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                 );
 
           return Container(
-            decoration: new BoxDecoration(
-                color: Colors.white,
-                borderRadius: new BorderRadius.only(
+            decoration: BoxDecoration(
+              color: Theme.of(context).canvasColor,
+              /*borderRadius:  BorderRadius.only(
                   topLeft: const Radius.circular(15),
                   topRight: const Radius.circular(15),
-                )),
+                ),*/
+            ),
             child: Material(
               color: Colors.transparent,
               child: Column(
@@ -383,7 +384,7 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                     blurRadius: 8,
                     offset: Offset(0.0, 4))
               ],
-              color: Colors.white,
+              color: Theme.of(context).canvasColor,
             ),
             child: Column(
               children: [
@@ -424,8 +425,11 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
                                       .textTheme
                                       .bodyText2
                                       .copyWith(
-                                          color:
-                                              Colors.black.withOpacity(0.55)),
+                                          color: Theme.of(context)
+                                              .textTheme
+                                              .bodyText2
+                                              .color
+                                              .withOpacity(0.55)),
                                 ),
                               ],
                             ),

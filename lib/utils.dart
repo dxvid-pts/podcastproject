@@ -183,3 +183,15 @@ String durationLeftString(final int _duration, final int _progress) {
 
   return '$leftMins:$leftSecs';
 }
+
+String durationToString(Duration duration) {
+  if (duration.inSeconds < 60) {
+    if (duration.inSeconds <= 10) return 'moments ago';
+    return '${duration.inSeconds}s ago';
+  } else if (duration.inMinutes < 60) {
+    return '${duration.inMinutes}min${duration.inMinutes != 1 ? 's' : ''} ago';
+  } else if (duration.inHours < 24) {
+    return '${duration.inHours}h ago';
+  }
+  return '${duration.inDays}day${duration.inDays != 1 ? 's' : ''} ago';
+}
