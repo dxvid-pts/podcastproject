@@ -26,6 +26,10 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
       prefs = await SharedPreferences.getInstance();
     }
 
+    var offlineString = prefs.getString('offline_date');
+    if (offlineString != null)
+      offlineDate.value = DateTime.parse(offlineString);
+
     //Load current Episode
     final String currentCachedEpisodeUrl = prefs.getString('current_episode');
 
@@ -66,6 +70,10 @@ Future<void> loadPodcasts({bool skipSharedPreferences = false}) async {
       podcastFromXml(url, await fetchXml(url));
     } catch (_) {}
   }));
+
+  var now = DateTime.now();
+  offlineDate.value = now;
+  prefs.setString('offline_date', now.toIso8601String());
 }
 
 Future<String> fetchXml(final String url, {final bool ignoreCache}) async {

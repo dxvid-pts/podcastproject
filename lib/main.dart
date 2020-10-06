@@ -38,6 +38,8 @@ Map<String, String> episodeDownloadTasks = Map();
 ValueNotifier<int> downloadNotifier = ValueNotifier(0);
 ValueNotifier<int> historyNotifier = ValueNotifier(0);
 
+ValueNotifier<DateTime> offlineDate = ValueNotifier(null);
+
 StreamController<String> updateStream = StreamController<String>.broadcast();
 
 //used to display skeletons in main_screen.dart

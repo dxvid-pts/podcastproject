@@ -104,10 +104,50 @@ class MainScreen extends StatelessWidget {
               ),
               if (podcasts.keys.length > 0)
                 Padding(
-                  padding: const EdgeInsets.only(left: 10, bottom: 6, top: 13),
-                  child: Text(
-                    'New Episodes:',
-                    style: GoogleFonts.lexendDeca(fontSize: 14.4),
+                  padding: const EdgeInsets.only(
+                      left: 10, bottom: 6, top: 13, right: 10),
+                  child: Row(
+                    children: [
+                      Text(
+                        'New Episodes:',
+                        style: GoogleFonts.lexendDeca(fontSize: 14.4),
+                      ),
+                      Expanded(
+                        child: Container(),
+                      ),
+                      ValueListenableBuilder(
+                        builder: (context, DateTime dateTime, child) =>
+                            StreamBuilder(
+                          stream: Stream.periodic(Duration(seconds: 5)),
+                          builder: (context, _) {
+                            if (dateTime == null) return Container();
+                            return Row(
+                              children: [
+                                child,
+                                Text(
+                                  dateTime == null
+                                      ? '--'
+                                      : durationToString(DateTime.now()
+                                          .difference(dateTime)),
+                                  style: GoogleFonts.lexendDeca(
+                                      fontSize: 13,
+                                      color: Theme.of(context)
+                                          .textTheme
+                                          .bodyText1
+                                          .color
+                                          .withOpacity(0.6)),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 3),
+                          child: Icon(Icons.history, size: 13.5),
+                        ),
+                        valueListenable: offlineDate,
+                      ),
+                    ],
                   ),
                 ),
               for (Episode e in episodes.values
