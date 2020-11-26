@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:podcast_player/main.dart';
-//import 'package:file_picker/file_picker.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:podcast_player/screens/settings_screen/export_interface.dart'
@@ -96,13 +96,15 @@ class SettingsScreen extends StatelessWidget {
                               if (!await Permission.storage.request().isGranted)
                                 return;
 
-                        //      final String dirPath = await FilePicker.platform.getDirectoryPath();
+                              final String dirPath =
+                                  await FilePicker.platform.getDirectoryPath();
 
-                          //    final String filePath = dirPath + Platform.pathSeparator + 'data.pd';
+                              final String filePath =
+                                  dirPath + Platform.pathSeparator + 'data.pd';
 
-                         //     print(dirPath);
+                              print(dirPath);
 
-                              /*final ProgressDialog pr = ProgressDialog(context);
+                              final ProgressDialog pr = ProgressDialog(context);
                               pr.style(
                                   progressWidget: CircularProgressIndicator(
                                     valueColor: AlwaysStoppedAnimation<Color>(
@@ -116,7 +118,7 @@ class SettingsScreen extends StatelessWidget {
                               file.createSync();
                               file.writeAsStringSync(export());
 
-                              await pr.hide();*/
+                              await pr.hide();
                             }
                           },
                           child: Text('Export app data'),
@@ -125,7 +127,7 @@ class SettingsScreen extends StatelessWidget {
                         RaisedButton(
                           onPressed: () async {
                             if (kIsWeb) {
-                             /* var r = await FilePicker.platform.pickFiles(
+                              var r = await FilePicker.platform.pickFiles(
                                 allowMultiple: false,
                                 allowedExtensions: ['pd'],
                                 type: FileType.custom,
@@ -148,12 +150,12 @@ class SettingsScreen extends StatelessWidget {
 
                               import(String.fromCharCodes(file.bytes));
 
-                              await pr.hide();*/
+                              await pr.hide();
                             } else {
                               if (!await Permission.storage.request().isGranted)
                                 return;
 
-                           /*   var r = await FilePicker.platform.pickFiles(
+                              var r = await FilePicker.platform.pickFiles(
                                 allowMultiple: false,
                                 allowedExtensions: ['pd'],
                                 type: FileType.custom,
@@ -176,8 +178,8 @@ class SettingsScreen extends StatelessWidget {
 
                               print('import ${file.path}');
                               import(file.readAsStringSync());
-*/
-                              //await pr.hide();
+
+                              await pr.hide();
                             }
                           },
                           child: Text('Import app data'),
