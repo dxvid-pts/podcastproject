@@ -258,7 +258,7 @@ class _AudioControllerWidgetState extends State<AudioControllerWidget> {
       minHeight: playerMinHeight,
       maxHeight: playerMaxHeight,
       valueNotifier: playerExpandProgress,
-      onDismiss: () {
+      onDismissed: () {
         currentlyPlaying.value = null;
         AudioService.stop();
       },

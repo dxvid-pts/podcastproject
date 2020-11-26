@@ -12,26 +12,25 @@ dependencies:
   flutter:
     sdk: flutter
 
-  miniplayer: ^0.5.0+5
+  miniplayer: ^0.6.1
   http: ^0.12.2
   animations: ^1.1.2
-  shared_preferences: ^0.5.10
-  audio_service: ^0.15.0
+  shared_preferences: ^0.5.12+4
+  audio_service: ^0.15.3
   just_audio: ^0.2.2
   positioned_tap_detector: ^1.0.3
-  flutter_html: ^1.0.2
+  flutter_html: ^1.1.1
   marquee: ^1.6.0
   flutter_custom_tabs: ^0.6.0
-  flutter_downloader: ^1.5.0
-  image: ^2.1.15
+  flutter_downloader: ^1.5.2
+  image: ^2.1.19
   flutter_cache_manager: ^1.4.1
-  google_fonts: ^1.1.0
+  google_fonts: ^1.1.1
   xml: ^4.5.0
-  file_picker: ^2.0.0
+  #file_picker: ^2.1.0
   progress_dialog: ^1.2.4
   permission_handler: ^5.0.1+1
-  webview_flutter: ^0.3.22+1
-  url_launcher: ^5.6.0
+  url_launcher: ^5.7.10
   #TODO: https://pub.dev/packages/quick_actions
 
 #dev_dependencies:
