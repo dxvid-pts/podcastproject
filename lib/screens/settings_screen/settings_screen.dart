@@ -1,15 +1,12 @@
 import 'dart:convert';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
-import 'package:podcast_player/main.dart';
-import 'package:file_picker/file_picker.dart';
+
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:podcast_player/screens/settings_screen/export_interface.dart'
-    if (dart.library.html) 'package:podcast_player/screens/settings_screen/export_web.dart';
+import 'package:podcast_player/main.dart';
 import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/settings_section_widget.dart';
-import 'package:progress_dialog/progress_dialog.dart';
+import 'package:storage_backup/storage_backup.dart';
+
 import '../../analyzer.dart';
 
 const Color greyAccent = const Color(0x09000000);
@@ -78,111 +75,21 @@ class SettingsScreen extends StatelessWidget {
                     Row(
                       children: [
                         OutlineButton(
-                          onPressed: () async {
-                            if (kIsWeb) {
-                              final ProgressDialog pr = ProgressDialog(context);
-                              pr.style(
-                                  progressWidget: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                  message: 'Exporting data...');
-
-                              await pr.show();
-
-                              saveExport();
-                              await pr.hide();
-                            } else {
-                              if (!await Permission.storage.request().isGranted)
-                                return;
-
-                              final String dirPath =
-                                  await FilePicker.platform.getDirectoryPath();
-
-                              final String filePath =
-                                  dirPath + Platform.pathSeparator + 'data.pd';
-
-                              print(dirPath);
-
-                              final ProgressDialog pr = ProgressDialog(context);
-                              pr.style(
-                                  progressWidget: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                  message: 'Exporting data to $filePath');
-
-                              await pr.show();
-
-                              File file = File(filePath);
-                              file.createSync();
-                              file.writeAsStringSync(export());
-
-                              await pr.hide();
-                            }
-                          },
                           child: Text('Export app data'),
+                          onPressed: () async {
+                            if (!await Permission.storage.request().isGranted)
+                              return;
+
+                            StorageBackup()
+                                .exportStorageToFile(filename: "data.cpd");
+                          },
                         ),
                         SizedBox(width: 10),
                         RaisedButton(
-                          onPressed: () async {
-                            if (kIsWeb) {
-                              var r = await FilePicker.platform.pickFiles(
-                                allowMultiple: false,
-                                allowedExtensions: ['pd'],
-                                type: FileType.custom,
-                              );
-                              if (r == null) return;
-
-                              PlatformFile file = r.files.first;
-
-                              final ProgressDialog pr = ProgressDialog(context);
-                              pr.style(
-                                  progressWidget: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                  message: 'Importing data from ${file.path}');
-
-                              await pr.show();
-
-                              print('import ${file.path}');
-
-                              import(String.fromCharCodes(file.bytes));
-
-                              await pr.hide();
-                            } else {
-                              if (!await Permission.storage.request().isGranted)
-                                return;
-
-                              var r = await FilePicker.platform.pickFiles(
-                                allowMultiple: false,
-                                allowedExtensions: ['pd'],
-                                type: FileType.custom,
-                              );
-                              if (r == null) return;
-
-                              File file = File(r.files.single.path);
-
-                              if (!file.path.endsWith('.pd')) return;
-
-                              final ProgressDialog pr = ProgressDialog(context);
-                              pr.style(
-                                  progressWidget: CircularProgressIndicator(
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                        Colors.blue),
-                                  ),
-                                  message: 'Importing data from ${file.path}');
-
-                              await pr.show();
-
-                              print('import ${file.path}');
-                              import(file.readAsStringSync());
-
-                              await pr.hide();
-                            }
-                          },
                           child: Text('Import app data'),
+                          onPressed: () {
+                            StorageBackup().importStorageFromFile();
+                          },
                         ),
                       ],
                     ),

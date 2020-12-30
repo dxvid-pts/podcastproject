@@ -14,6 +14,7 @@ import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/music_preview_player_widget.dart';
 import 'package:podcast_player/widgets/navigator_page_widget.dart';
 import 'package:podcast_player/widgets/player.dart';
+import 'package:storage_backup/storage_backup.dart';
 
 import 'analyzer.dart';
 
@@ -62,6 +63,8 @@ void main() {
 
   loadPodcasts();
   if (!kIsWeb) loadDownloadedFiles();
+
+  StorageBackup.sharedPreferencesAdapter();
 }
 
 class MyApp extends StatelessWidget {
