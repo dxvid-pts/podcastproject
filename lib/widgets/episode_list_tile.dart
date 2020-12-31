@@ -192,7 +192,7 @@ class SeparatorWidget extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 4.5),
         child: Icon(
           Icons.brightness_1,
-          color: const Color(0x66000000),
+          color: Theme.of(context).textTheme.caption.color,
           size: 5,
         ),
       );

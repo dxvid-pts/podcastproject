@@ -99,7 +99,9 @@ class DownloadIcon extends StatelessWidget {
         ? Icon(
             Icons.offline_pin,
             size: iconSize,
-            color: Colors.green,
+            color: Theme.of(context).brightness == Brightness.light
+                ? Colors.green
+                : Colors.greenAccent,
           )
         : progress != 0
             ? SizedBox(

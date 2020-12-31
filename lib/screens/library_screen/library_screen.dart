@@ -7,18 +7,19 @@ import '../../podcast_icons_icons.dart';
 import 'package:podcast_player/main.dart';
 
 class LibraryScreen extends StatelessWidget {
-  final tabBar = TabBar(
-    indicatorColor: Colors.blue,
-    indicatorSize: TabBarIndicatorSize.label,
-    tabs: [
-      Tab(text: 'History'),
-      Tab(text: 'Downloads'),
-      Tab(text: 'Playlists'),
-    ],
-  );
 
   @override
   Widget build(BuildContext context) {
+    final tabBar = TabBar(
+      indicatorColor: Theme.of(context).brightness == Brightness.light ? Colors.blue:Colors.white,
+      indicatorSize: TabBarIndicatorSize.label,
+      tabs: [
+        Tab(text: 'History'),
+        Tab(text: 'Downloads'),
+        Tab(text: 'Playlists'),
+      ],
+    );
+
     return ValueListenableBuilder(
       builder: (context, _isMobile, body) {
         return DefaultTabController(

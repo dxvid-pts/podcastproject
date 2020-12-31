@@ -79,7 +79,7 @@ class _PodcastOverviewScreenState extends State<PodcastOverviewScreen> {
         Tooltip(
           message:
               'Unsubscribe from ${podcast.title.contains(' ') ? podcast.title.split(' ')[0] : podcast.title}',
-          child: RaisedButton(
+          child: ElevatedButton(
             child: Text('Unsubscribe'),
             onPressed: //() => unsubscribePodcast(podcast.url),
                 () {
@@ -125,7 +125,9 @@ class _PodcastOverviewScreenState extends State<PodcastOverviewScreen> {
                     contentPadding: EdgeInsets.symmetric(horizontal: 15.0),
                     border: InputBorder.none,
                     filled: true,
-                    fillColor: Colors.grey[100],
+                    fillColor: Theme.of(context).brightness == Brightness.light
+                        ? Colors.grey[100]
+                        : Colors.white.withOpacity(0.045),
                   ),
                   onChanged: (keyword) => setState(() {
                     if (keyword.length == 0)
@@ -241,7 +243,16 @@ class PodcastHeaderWidget extends StatelessWidget {
                       ),
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 1),
-                        child: Text(author),
+                        child: Text(
+                          author,
+                          style: TextStyle(
+                            color: Theme.of(context)
+                                .textTheme
+                                .bodyText1
+                                .color
+                                .withOpacity(0.7),
+                          ),
+                        ),
                       ),
                       if (link != null && displayUrl != null)
                         Tooltip(
@@ -254,7 +265,10 @@ class PodcastHeaderWidget extends StatelessWidget {
                                 Text(
                                   displayUrl,
                                   style: GoogleFonts.lexendDeca(
-                                    color: Colors.blue,
+                                    color: Theme.of(context).brightness ==
+                                            Brightness.light
+                                        ? Colors.blue
+                                        : Colors.white,
                                     fontSize: 13.4,
                                   ),
                                 ),
@@ -262,7 +276,10 @@ class PodcastHeaderWidget extends StatelessWidget {
                                 Icon(
                                   Icons.open_in_new,
                                   size: 14,
-                                  color: Colors.blue,
+                                  color: Theme.of(context).brightness ==
+                                          Brightness.light
+                                      ? Colors.blue
+                                      : Colors.white,
                                 ),
                               ],
                             ),
@@ -287,10 +304,20 @@ class PodcastHeaderWidget extends StatelessWidget {
           alignment: Alignment.centerLeft,
           child: ExpandableText(
             textSpan: TextSpan(
-                text: description, style: TextStyle(color: Colors.black)),
+                text: description,
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.black
+                      : Colors.white.withOpacity(0.88),
+                )),
             maxLines: 4,
-            moreSpan:
-                TextSpan(text: 'more', style: TextStyle(color: Colors.blue)),
+            moreSpan: TextSpan(
+                text: 'more',
+                style: TextStyle(
+                  color: Theme.of(context).brightness == Brightness.light
+                      ? Colors.blue
+                      : Colors.white,fontWeight: FontWeight.bold,
+                )),
           ),
         ),
       ],

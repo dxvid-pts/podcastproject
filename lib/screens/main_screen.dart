@@ -143,7 +143,9 @@ class MainScreen extends StatelessWidget {
                         ),
                         child: Padding(
                           padding: const EdgeInsets.only(right: 3),
-                          child: Icon(Icons.history, size: 13.5),
+                          child: Icon(Icons.history, size: 14,color: Theme.of(context).brightness == Brightness.light
+                              ? Colors.black
+                              : Colors.white.withOpacity(0.6),),
                         ),
                         valueListenable: offlineDate,
                       ),

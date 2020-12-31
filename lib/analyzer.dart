@@ -560,4 +560,5 @@ void setEpisodeDownloadState(final String audioUrl, final int progress,
 void saveSetting(final String key, final int value) =>
     prefs.setInt('sett:$key', value);
 
-int getSetting(final String key) => prefs.getInt('sett:$key');
+int getSetting(final String key, {SharedPreferences preferences}) =>
+    (preferences ?? prefs).getInt('sett:$key');

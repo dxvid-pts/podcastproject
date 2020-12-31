@@ -31,6 +31,7 @@ dependencies:
   url_launcher: ^5.7.10
   storage_backup:
     path: C:\Users\David\IdeaProjects\storage_backup
+  provider: ^4.3.2+3
   #TODO: https://pub.dev/packages/quick_actions
 
 #dev_dependencies:

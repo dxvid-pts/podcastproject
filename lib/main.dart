@@ -14,6 +14,7 @@ import 'package:podcast_player/utils.dart';
 import 'package:podcast_player/widgets/music_preview_player_widget.dart';
 import 'package:podcast_player/widgets/navigator_page_widget.dart';
 import 'package:podcast_player/widgets/player.dart';
+import 'package:provider/provider.dart';
 import 'package:storage_backup/storage_backup.dart';
 
 import 'analyzer.dart';
@@ -57,7 +58,10 @@ void main() {
     yield LicenseEntryWithLineBreaks(['google_fonts'], license);
   });
 
-  runApp(MyApp());
+  runApp(ChangeNotifierProvider(
+    create: (context) => ThemeProviderData(),
+    child: MyApp(),
+  ));
 
   WidgetsFlutterBinding.ensureInitialized();
 
@@ -72,14 +76,46 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Podcast',
+      themeMode: context.watch<ThemeProviderData>().themeMode,
       debugShowCheckedModeBanner: false,
+      darkTheme: ThemeData.dark().copyWith(
+        accentColor: Colors.white,
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            primary: Colors.white,
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            onPrimary: Colors.white,
+            primary: Colors.white.withOpacity(0.2),
+          ),
+        ),
+        bottomNavigationBarTheme: BottomNavigationBarTheme.of(context).copyWith(
+          selectedLabelStyle: GoogleFonts.lexendDeca(),
+          unselectedLabelStyle: GoogleFonts.lexendDeca(),
+          selectedItemColor: Colors.white,
+        ),
+      ),
       theme: ThemeData(
         primaryColor: Colors.white,
         accentColor: Colors.white,
         visualDensity: VisualDensity.adaptivePlatformDensity,
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            primary: Colors.black.withOpacity(0.7),
+          ),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            onPrimary: Colors.black,
+            primary: Color(0xFFE0E0E0),
+          ),
+        ),
         bottomNavigationBarTheme: BottomNavigationBarTheme.of(context).copyWith(
           selectedLabelStyle: GoogleFonts.lexendDeca(),
           unselectedLabelStyle: GoogleFonts.lexendDeca(),
+          selectedItemColor: Colors.blue,
         ),
       ),
       home: AudioServiceWidget(child: App()),
@@ -208,7 +244,6 @@ class _AppState extends State<App> {
                           )
                           .toList(),
                       currentIndex: _selectedIndex,
-                      selectedItemColor: Colors.blue,
                       onTap: onNavigationTap,
                     ),
                     builder:

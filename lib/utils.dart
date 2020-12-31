@@ -1,7 +1,10 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_custom_tabs/flutter_custom_tabs.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart' as webLauncher;
+
+import 'analyzer.dart';
 
 class Podcast {
   String title, author, img, description, url, language, link;
@@ -194,4 +197,28 @@ String durationToString(Duration duration) {
     return '${duration.inHours}h ago';
   }
   return '${duration.inDays}day${duration.inDays != 1 ? 's' : ''} ago';
+}
+
+class ThemeProviderData extends ChangeNotifier {
+  ThemeProviderData() {
+    SharedPreferences.getInstance().then((prefs) {
+      int themeSetting = getSetting("theme_settings", preferences: prefs);
+      print("afaskjfna: $themeSetting");
+
+      if (themeSetting == null) return;
+
+      if (themeSetting == 0)
+        setAppTheme(ThemeMode.light);
+      else if (themeSetting == 2) setAppTheme(ThemeMode.dark);
+    });
+  }
+
+  ThemeMode themeMode = ThemeMode.system;
+
+  void setAppTheme(ThemeMode themeMode) {
+    if (themeMode == this.themeMode) return;
+    this.themeMode = themeMode;
+
+    notifyListeners();
+  }
 }
