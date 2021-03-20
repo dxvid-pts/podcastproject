@@ -2,7 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:hive/hive.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
-import 'package:pp_test/analyzer/utils.dart';
+import 'package:podcast_player/analyzer/utils.dart';
 import 'package:uuid/uuid.dart';
 import 'package:xml/xml.dart';
 
