@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'package:path_provider/path_provider.dart';
 import 'package:stream_transform/stream_transform.dart';
 import 'package:flutter/foundation.dart';
 import 'package:state_notifier/state_notifier.dart';
@@ -13,11 +14,20 @@ PodcastNotifier podcastProvider = PodcastNotifier();
 //Stores the current playback state of episodes
 Map<String, ValueNotifier<int>> episodeStates = Map();
 
+String? _path;
+
+Future<String?> get path async {
+  if (!kIsWeb && _path == null) {
+    _path = (await getApplicationDocumentsDirectory()).path;
+  }
+  return _path;
+}
+
 void updateData() async {
   Stopwatch stopwatch = Stopwatch()..start();
 
-  final data =
-      await compute(parseAllXml, XmlParamStruct(urls: testData, path: ""));
+  final data = await compute(
+      parseAllXml, XmlParamStruct(urls: testData, path: await path));
 
   podcastProvider.setPodcasts(data.podcasts);
   setEpisodeStates(data.episodeStates);
@@ -41,7 +51,11 @@ class LayoutNotifier extends StateNotifier<bool> {
 
   bool get isMobile => state;
 
-  void setWidth(double width) => state = width < 500;
+  void setWidth(double width) {
+    bool newState = width < 500;
+
+    if (newState != state) state = newState;
+  }
 }
 
 class PodcastNotifier extends StateNotifier<Map<String, Podcast>> {

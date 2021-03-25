@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:podcast_player/screens/main_screen.dart';
 
 import 'analyzer/utils.dart';
 
 void main() {
-  updateData();
   runApp(ProviderScope(child: MyApp()));
+  WidgetsFlutterBinding.ensureInitialized();
+  updateData();
 }
 
 final layoutProvider = StateNotifierProvider((ref) => LayoutNotifier());
@@ -17,10 +19,11 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Demo',
       theme: ThemeData(
         primarySwatch: Colors.blue,
+          visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: LayoutBuilder(builder: (context, constraints) {
         context.read(layoutProvider).setWidth(constraints.maxWidth);
-        return MyHomePage();
+        return MainScreen();
       }),
     );
   }

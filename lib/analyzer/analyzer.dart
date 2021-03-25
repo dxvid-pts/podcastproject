@@ -12,14 +12,12 @@ class XmlSingleDataStruct {
   const XmlSingleDataStruct({
     this.podcastId,
     this.podcast,
-    this.episodeStates = const <String, ValueNotifier<int>>{},
     this.episodes = const <String, Episode>{},
   });
 
   final String? podcastId;
   final Podcast? podcast;
   final Map<String, Episode> episodes;
-  final Map<String, ValueNotifier<int>> episodeStates;
 }
 
 class XmlReturnStruct {
@@ -38,7 +36,7 @@ class XmlParamStruct {
   const XmlParamStruct({required this.urls, required this.path});
 
   final Set<String> urls;
-  final String path;
+  final String? path;
 }
 
 const Set<String> testData = {
@@ -66,10 +64,9 @@ Future<Set<Podcast>> loadAllFromDb() async {
 Future<XmlReturnStruct> parseAllXml(XmlParamStruct data) async {
   final Map<String, Podcast> podcasts = {};
   final Map<String, Episode> episodes = {};
-  final Map<String, ValueNotifier<int>> episodeStates = {};
 
   Set<XmlSingleDataStruct> structs = (await Future.wait<XmlSingleDataStruct>(
-          data.urls.map((url) => parseXml(url, data.path))))
+          data.urls.map((url) => parseXml(url))))
       .toSet();
 
   for (var struct in structs) {
@@ -79,14 +76,16 @@ Future<XmlReturnStruct> parseAllXml(XmlParamStruct data) async {
 
     podcasts.putIfAbsent(struct.podcastId!, () => struct.podcast!);
     episodes.addAll(struct.episodes);
-    episodeStates.addAll(struct.episodeStates);
   }
 
   return XmlReturnStruct(
-      podcasts: podcasts, episodeStates: episodeStates, episodes: episodes);
+    podcasts: podcasts,
+    episodeStates: await getEpisodeStatesInIsolate(data.path),
+    episodes: episodes,
+  );
 }
 
-Future<XmlSingleDataStruct> parseXml(String url, String path) async {
+Future<XmlSingleDataStruct> parseXml(String url) async {
   print('podcastFromXml');
 
   if (url.startsWith('feed:')) url = url.split('feed:')[1];
@@ -265,7 +264,6 @@ Future<XmlSingleDataStruct> parseXml(String url, String path) async {
     podcastId: podcastId,
     podcast: podcast,
     episodes: episodes,
-    episodeStates: await getEpisodeStatesInIsolate(path),
   );
 }
 
@@ -288,12 +286,13 @@ String makeDateString(final String c, final int length) {
   return result;
 }
 
-Future<Map<String, ValueNotifier<int>>> getEpisodeStatesInIsolate(
-    String path) async {
+Future<Map<String, ValueNotifier<int>>> getEpisodeStatesInIsolate(String? path) async {
   Map<String, ValueNotifier<int>> _episodeStates = Map();
+  print("agadggagag");
 
-  Hive.init(path);
-  var box = Hive.box<int>('episode_states');
+  if (path != null) Hive.init(path);
+
+  var box = await Hive.openBox<int>('episode_states');
 
   for (String key in box.keys) {
     try {
