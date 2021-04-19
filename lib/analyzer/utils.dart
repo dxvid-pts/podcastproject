@@ -7,6 +7,7 @@ import 'package:state_notifier/state_notifier.dart';
 import 'analyzer.dart';
 
 ValueNotifier<Episode?> currentEpisode = ValueNotifier(null);
+ValueNotifier<DateTime?> lastUpdated = ValueNotifier(null);
 
 EpisodeNotifier episodeProvider = EpisodeNotifier();
 PodcastNotifier podcastProvider = PodcastNotifier();
@@ -32,6 +33,8 @@ void updateData() async {
   podcastProvider.setPodcasts(data.podcasts);
   setEpisodeStates(data.episodeStates);
   episodeProvider.setEpisodes(data.episodes);
+
+  lastUpdated.value = DateTime.now();
 
   print('Executed in ${stopwatch.elapsed.inSeconds}s');
 }
@@ -165,6 +168,9 @@ class Episode {
     return episodeStates[episodeId]!;
   }
 
+  Podcast get podcast {
+    return podcastProvider.currentState[podcastId]!;
+  }
 /*String get dateString {
     String dateString = '<NO DATE>';
     if (date != null) {

@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:podcast_player/analyzer/utils.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import '../main.dart';
+import 'image_card.dart';
 import 'podcast_list_tile.dart';
 
 class PodcastGrid extends ConsumerWidget {
@@ -24,15 +25,9 @@ class PodcastGrid extends ConsumerWidget {
         if (!snapshot.hasData) return Text("No data");
 
         List<Widget> widgetList = <Widget>[]..addAll(snapshot.data!.map(
-            (podcast) => PodcastListTile(
-              child: podcast.img == null
-                  ? Container()
-                  : Image.network(podcast.img!),
-              tooltip: podcast.title,
-              onTap: () => print(podcast.title),
-            ),
+            (podcast) => PodcastListTile(podcast: podcast),
           ));
-        widgetList.add(PodcastListTile(
+        widgetList.add(ImageCard(
           child: Center(child: Icon(Icons.add)),
           tooltip: "Add podcast",
           onTap: () => print("add"),
