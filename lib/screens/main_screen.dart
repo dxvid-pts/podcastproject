@@ -9,6 +9,8 @@ class MainScreen extends ConsumerWidget {
   Widget build(BuildContext context, ScopedReader watch) {
     final isMobile = watch(layoutProvider).isMobile;
 
+    List<Widget> children = [];
+
     return Scaffold(
       appBar: isMobile
           ? AppBar(
@@ -26,15 +28,18 @@ class MainScreen extends ConsumerWidget {
               ],
             )
           : null,
-      body: isMobile
-          ? PodcastGrid()
-          : MaxSizedWidget(
-              maxWidth: 600,
-              builder: (width) {
-                print(width);
-                return PodcastGrid(crossAxisCount: (width / 100).round());
-              },
-            ),
+      body: MaxSizedWidget(
+        maxWidth: 600,
+        builder: (width, padding) {
+          print(width.toString() + ", " + padding.toString());
+          children.insert(0, PodcastGrid(crossAxisCount: (width / 100).round()));
+          return ListView.builder(
+            itemCount: children.length,
+            padding: EdgeInsets.symmetric(horizontal: padding),
+            itemBuilder: (context, index) => children[index],
+          );
+        },
+      ),
     );
   }
 }

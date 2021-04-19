@@ -97,7 +97,8 @@ Future<XmlSingleDataStruct> parseXml(String url) async {
 
   try {
     document = XmlDocument.parse((await http.get(uri)).body);
-  } catch (_) {
+  } catch (e) {
+    print(e);
     return XmlSingleDataStruct();
   }
 

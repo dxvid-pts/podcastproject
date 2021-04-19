@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-typedef Widget MaxSizedBuilder(double width);
+typedef Widget MaxSizedBuilder(double width, padding);
 
 class MaxSizedWidget extends StatelessWidget {
   final double maxWidth;
@@ -15,17 +15,12 @@ class MaxSizedWidget extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
+        final double padding = (constraints.maxWidth - maxWidth) / 2;
+
         if (constraints.maxWidth > maxWidth)
-          return Padding(
-            padding: EdgeInsets.symmetric(
-                horizontal: (constraints.maxWidth - maxWidth) / 2),
-            child: SizedBox(
-              width: maxWidth,
-              child: builder != null ? builder!(maxWidth) : _child,
-            ),
-          );
+          return builder != null ? builder!(maxWidth, padding) : _child;
         else
-          return builder != null ? builder!(constraints.maxWidth) : _child;
+          return builder != null ? builder!(constraints.maxWidth, 0) : _child;
       },
     );
   }
