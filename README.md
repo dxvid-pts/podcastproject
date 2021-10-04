@@ -28,9 +28,7 @@ time later.
 - [x] RSS support
 
 ### Roadmap
-- [ ] release app
-- [ ] IOS redesign and support
-- [ ] desktop and web support
-- [ ] add advanced audio options such as transcript support and changing playback speed
-
->Note: The app is dependent on two pull requests([New Button Universe #59702](https://github.com/flutter/flutter/pull/59702), [[Material] Updated icons and fonts #61778](https://github.com/flutter/flutter/pull/61778)), which are only available on the dev channel and above and thus not compilable if you are on stable.
+- [ ] store release
+- [ ] IOS redesign + support
+- [ ] desktop + web support
+- [ ] advanced audio options such as transcript + playback speed support 
